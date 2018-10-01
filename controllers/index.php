@@ -22,6 +22,7 @@ class Index extends Controller {
         $this->view->title = SITE_TITLE . $metas['title'];
         $this->view->description = $metas['description'];
         $this->view->keywords = $metas['keywords'];
+        $this->view->template = $this->helper->getTemplate();
         /* FIN CONTENIDO OBLIGATORIO PARA CADA VISTA */
 
         $this->view->slider = $this->helper->cargarSlider($lng);

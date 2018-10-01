@@ -50,7 +50,7 @@
             </div>
         </article>
         <!-- PageTop -->
-        <div id="pagetop" class="transparent-pagetop">
+        <div id="pagetop" class="<?= $this->template['pagetop']; ?>">
             <!-- Inner -->
             <div class="pagetop_inner clearfix">
                 <!-- Left Text -->
@@ -72,7 +72,7 @@
         </div>
         <!-- End Pagetop -->
         <!-- Navigation - select your nav color - dark-nav or white-nav -->
-        <nav id="navigation" class="white-nav">
+        <nav id="navigation" class="<?= $this->template['navigation']; ?>">
             <!-- Navigation -->
             <div class="navigation first-nav double-nav raleway">
                 <!-- Navigation Inner -->

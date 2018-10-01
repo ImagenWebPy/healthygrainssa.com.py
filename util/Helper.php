@@ -1030,4 +1030,19 @@ class Helper {
         return $sql;
     }
 
+    public function getTemplate() {
+        $sql = $this->db->select("SELECT template_fullwidth as template FROM `control` where id = 1;");
+        $pagetop = 'transparent-pagetop';
+        $navigation = 'white-nav';
+        if ($sql[0]['template'] == 1) {
+            $pagetop = 'white-pagetop';
+            $navigation = 'white-nav relative-nav';
+        }
+        $data = array(
+            'pagetop' => $pagetop,
+            'navigation' => $navigation
+        );
+        return $data;
+    }
+
 }
