@@ -95,8 +95,19 @@
 
                         <!-- Nav List -->
                         <ul class="nav uppercase normal">
-                            <?php foreach ($this->menu as $menu): ?>
+                            <?php
+                            foreach ($this->menu as $menu):
+                                $submenu = $this->helper->cargarSubMenu($menu['id'], $this->idioma);
+                                ?>
                                 <li class="dropdown-toggle nav-toggle"><a href="#"><?= utf8_encode($menu['texto']); ?></a>
+                                    <?php if (!empty($submenu)): ?>
+                                        <!-- DropDown Menu -->
+                                        <ul class="dropdown-menu pull-left clearfix">
+                                            <?php foreach ($submenu as $sub): ?>
+                                                <li><a href="#" class="ex-link"><?= utf8_encode($sub['texto']); ?></a></li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    <?php endif; ?>
                                 </li>
                             <?php endforeach; ?>
                             <li class="dropdown-toggle nav-toggle"><a href="#" class="tahoma"><i class="fa fa-search"></i></a>

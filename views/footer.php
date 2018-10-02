@@ -1,3 +1,90 @@
+<!-- Address Type2 -->
+<section class="address type-2 background37 parallax9 dark-bg">
+    <!-- Boxed div -->
+    <div class="boxed clearfix relative">
+
+        <!-- Box -->
+        <a class="box clearfix block f-left" href="tel:<?= utf8_encode($this->datosContacto['telefono']); ?>">
+            <!-- Icon -->
+            <div class="f-left icon">
+                <i class="fa fa-mobile"></i>
+            </div>
+            <!-- Texts -->
+            <div class="f-right texts">
+                <!-- Arrow -->
+                <span class="arrow"></span>
+                <!-- Header -->
+                <h3 class="no-padding no-margin extra-light">
+                    <?php if ($this->idioma == 'en'): ?>
+                        Phone:
+                    <?php else: ?>
+                        Teléfono:
+                    <?php endif; ?>
+                </h3>
+                <!-- Detail -->
+                <p class="no-margin no-padding extra-light">
+                    <?= utf8_encode($this->datosContacto['telefono']); ?>
+                </p>
+            </div>
+            <!-- End Texts -->
+        </a>
+        <!-- End Box -->
+
+        <!-- Box -->
+        <a class="box clearfix block f-left" href="mailto:<?= utf8_encode($this->datosContacto['email']); ?>m">
+            <!-- Icon -->
+            <div class="f-left icon">
+                <i class="fa fa-envelope"></i>
+            </div>
+            <!-- Texts -->
+            <div class="f-right texts">
+                <!-- Arrow -->
+                <span class="arrow"></span>
+                <!-- Header -->
+                <h3 class="no-padding no-margin extra-light">
+                    E-Mail
+                </h3>
+                <!-- Detail -->
+                <p class="no-margin no-padding extra-light">
+                    <?= utf8_encode($this->datosContacto['email']); ?>
+                </p>
+            </div>
+            <!-- End Texts -->
+        </a>
+        <!-- End Box -->
+
+        <!-- Box -->
+        <a class="box clearfix block f-left scroll" href="#map">
+            <!-- Icon -->
+            <div class="f-left icon">
+                <i class="fa fa-map-marker"></i>
+            </div>
+            <!-- Texts -->
+            <div class="f-right texts">
+                <!-- Arrow -->
+                <span class="arrow"></span>
+                <!-- Header -->
+                <h3 class="no-padding no-margin extra-light">
+                    <?php if ($this->idioma == 'en'): ?>
+                        Address;
+                    <?php else: ?>
+                        Dirección:
+                    <?php endif; ?>
+                </h3>
+                <!-- Detail -->
+                <p class="no-margin no-padding extra-light">
+                    <?= utf8_encode($this->datosContacto['direccion']); ?><br>
+                    <?= utf8_encode($this->datosContacto['ciudad']); ?> - <?= utf8_encode($this->datosContacto['pais']); ?>
+                </p>
+            </div>
+            <!-- End Texts -->
+        </a>
+        <!-- End Box -->
+
+    </div>
+    <!-- End Boxed div -->
+</section>
+<!-- End Address Section -->
 <!-- Footer -->
 <footer class="big-footer fullwidth dark-footer t-left">
     <!-- Footer Inner -->

@@ -762,6 +762,11 @@ class Helper {
         return $sql;
     }
 
+    public function cargarSubMenu($id, $lng) {
+        $sql = $this->db->select("SELECT id, " . $lng . "_texto as texto, controlador, metodo, funcion from submenu where id_menu = $id and estado = 1 ORDER BY orden ASC");
+        return $sql;
+    }
+
     public function cargarRedesSociales() {
         $sql = $this->db->select("SELECT descripcion, fontawesome, url FROM `redes` where estado = 1 ORDER BY orden ASC");
         return $sql;

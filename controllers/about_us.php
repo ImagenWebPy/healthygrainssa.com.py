@@ -1,6 +1,6 @@
 <?php
 
-class Index extends Controller {
+class About_us extends Controller {
 
     function __construct() {
         parent::__construct();
@@ -8,8 +8,9 @@ class Index extends Controller {
 
     public function index() {
         /* CONTENIDO OBLIGATORIO PARA CADA VISTA */
-        $lng = $this->idioma;
-        $metas = $this->helper->getMetaTags($lng, $this->url);
+        $url = $this->url;
+        $lng = $url[0];
+        $metas = $this->helper->getMetaTags($lng, $url);
         $this->view->idioma = $lng;
         $this->view->page = $this->page;
         $this->view->logos = $this->helper->getLogos();
@@ -26,17 +27,13 @@ class Index extends Controller {
         $this->view->helper = $this->helper;
         /* FIN CONTENIDO OBLIGATORIO PARA CADA VISTA */
 
-        $this->view->slider = $this->helper->cargarSlider($lng);
-        $this->view->seccion1 = $this->helper->cargarSeccion1($lng);
-        $this->view->seccion1_certificaciones = $this->helper->cargarSeccion1_Certificaciones($lng);
-        $this->view->seccion2 = $this->helper->cargarSeccion2($lng);
-        $this->view->productos = $this->helper->cargarProductos($lng);
-        $this->view->responsabilidad = $this->helper->obtenerDatosResponsabilidad($lng);
-        $this->view->beneficios = $this->helper->obtenerDatosBeneficiosResponsabilidad($lng);
-        $this->view->blog = $this->helper->obtenerEntradasBlog($lng);
+        $this->view->header = $this->model->header($lng);
+        $this->view->seccion1 = $this->model->seccion1($lng);
+        $this->view->seccion2 = $this->model->seccion2($lng);
+        $this->view->seccion3 = $this->model->seccion3($lng);
 
         $this->view->render('header');
-        $this->view->render('index/index');
+        $this->view->render('about_us/index');
         $this->view->render('footer');
     }
 
