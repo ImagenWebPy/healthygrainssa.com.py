@@ -104,7 +104,7 @@
                                         <!-- DropDown Menu -->
                                         <ul class="dropdown-menu pull-left clearfix">
                                             <?php foreach ($submenu as $sub): ?>
-                                                <li><a href="<?= URL . utf8_encode($sub['controlador']) . '/' . utf8_encode($sub['metodo']); ?>" class="ex-link"><?= utf8_encode($sub['texto']); ?></a></li>
+                                                <li><a href="<?= URL . $this->idioma . '/' . utf8_encode($sub['controlador']) . '/' . utf8_encode($sub['metodo']); ?>" class="ex-link"><?= utf8_encode($sub['texto']); ?></a></li>
                                             <?php endforeach; ?>
                                         </ul>
                                     <?php endif; ?>
