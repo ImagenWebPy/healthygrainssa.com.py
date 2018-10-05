@@ -889,7 +889,7 @@ class Helper {
     }
 
     public function cargarSeccion1_Certificaciones($lng) {
-        $sql = $this->db->select("SELECT imagen_certificacion as imagen, " . $lng . "_menu as titulo, " . $lng . "_resumen as resumen FROM `certificaciones` where estado = 1 ORDER BY orden ASC;");
+        $sql = $this->db->select("SELECT imagen_certificacion as imagen, " . $lng . "_nombre_corto as titulo, " . $lng . "_resumen as resumen FROM `certificaciones` where estado = 1 ORDER BY orden ASC;");
         return $sql;
     }
 
