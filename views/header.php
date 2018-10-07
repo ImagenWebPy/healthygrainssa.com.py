@@ -80,7 +80,7 @@
                     <!-- Logo Area -->
                     <div class="logo f-left">
                         <!-- Logo Link -->
-                        <a href="<?= URL; ?>" class="logo-link scroll">
+                        <a href="<?= URL . $this->idioma; ?>" class="logo-link scroll">
                             <!-- Logo Image / data-second-logo for only white nav -->
                             <img src="<?= URL; ?>public/images/<?= $this->logos['logo']; ?>" data-second-logo="<?= URL; ?>public/images/<?= $this->logos['logo']; ?>" alt="<?= utf8_encode($this->datos['nombre_empresa']); ?>" />
                         </a>
