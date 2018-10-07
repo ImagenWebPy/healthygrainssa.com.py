@@ -98,8 +98,9 @@
                             <?php
                             foreach ($this->menu as $menu):
                                 $submenu = $this->helper->cargarSubMenu($menu['id'], $this->idioma);
+                                $url = (empty($submenu)) ? URL . $this->idioma . '/' . utf8_encode($menu['controlador']) . '/' . utf8_encode($menu['metodo']) : '#';
                                 ?>
-                                <li class="dropdown-toggle nav-toggle"><a href="#"><?= utf8_encode($menu['texto']); ?></a>
+                                <li class="dropdown-toggle nav-toggle"><a href="<?= $url; ?>"><?= utf8_encode($menu['texto']); ?></a>
                                     <?php if (!empty($submenu)): ?>
                                         <!-- DropDown Menu -->
                                         <ul class="dropdown-menu pull-left clearfix">

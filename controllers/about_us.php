@@ -24,6 +24,7 @@ class About_us extends Controller {
         $this->view->description = $metas['description'];
         $this->view->keywords = $metas['keywords'];
         $this->view->template = $this->helper->getTemplate();
+        $this->view->footerBackground = $this->helper->footerBackground();
         $this->view->helper = $this->helper;
         /* FIN CONTENIDO OBLIGATORIO PARA CADA VISTA */
 

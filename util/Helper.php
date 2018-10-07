@@ -1050,4 +1050,9 @@ class Helper {
         return $data;
     }
 
+    public function footerBackground() {
+        $sql = $this->db->select("SELECT imagen FROM `footer` where id = 1;");
+        return $sql[0]['imagen'];
+    }
+
 }

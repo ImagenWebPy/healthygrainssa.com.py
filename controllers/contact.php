@@ -1,6 +1,6 @@
 <?php
 
-class Certifications extends Controller {
+class Contact extends Controller {
 
     function __construct() {
         parent::__construct();
@@ -29,11 +29,25 @@ class Certifications extends Controller {
         /* FIN CONTENIDO OBLIGATORIO PARA CADA VISTA */
 
         $this->view->header = $this->model->header($lng);
-        $this->view->certificaciones = $this->model->certificaciones($lng);
+        $this->view->contact = $this->model->contact($lng);
 
         $this->view->render('header');
-        $this->view->render('certifications/index');
+        $this->view->render('contact/index');
         $this->view->render('footer');
+    }
+
+    public function frmContacto() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = array(
+            'url' => (!empty($_POST['url'])) ? $this->helper->cleanInput($_POST['url']) : NULL,
+            'idioma' => (!empty($_POST['idioma'])) ? $this->helper->cleanInput($_POST['idioma']) : NULL,
+            'name' => (!empty($_POST['name'])) ? $this->helper->cleanInput($_POST['name']) : NULL,
+            'email' => (!empty($_POST['email'])) ? $this->helper->cleanInput($_POST['email']) : NULL,
+            'subject' => (!empty($_POST['subject'])) ? $this->helper->cleanInput($_POST['subject']) : NULL,
+            'comment' => (!empty($_POST['comment'])) ? $this->helper->cleanInput($_POST['comment']) : NULL
+        );
+        $datos = $this->model->frmContacto($data);
+        echo json_encode($datos);
     }
 
 }

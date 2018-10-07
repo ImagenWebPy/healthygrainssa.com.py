@@ -1,5 +1,5 @@
 <!-- Address Type2 -->
-<section class="address type-2 background37 parallax9 dark-bg">
+<section class="address type-2 parallax9 dark-bg" style="background-image:url(<?= URL; ?>public/images/<?= utf8_encode($this->footerBackground); ?>">
     <!-- Boxed div -->
     <div class="boxed clearfix relative">
 
