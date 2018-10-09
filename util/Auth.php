@@ -13,7 +13,7 @@ class Auth {
                 $lng = $_GET['URL'][0];
             }
         }
-        $logged = (!empty($_SESSION['loggedIn']) ? $_SESSION['loggedIn'] : '');
+        $logged = (!empty($_SESSION['loggedInHealthy']) ? $_SESSION['loggedInHealthy'] : '');
         if (empty($logged)) {
             //session_destroy();
             if (!isset($_SESSION['urlAnterior'])) {

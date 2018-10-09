@@ -1055,4 +1055,89 @@ class Helper {
         return $sql[0]['imagen'];
     }
 
+    public function getActivePageAdmin($page) {
+        $dashboard = $inicio = $aboutus = $products = $blog = $services = $certificactions = $retail = $listado = $busqueda = $contacto = $menu = $pagina = $redes = $logo = $direccion = $metatags = $usuarios = '';
+        switch ($page) {
+            case'inicio':
+                $inicio = 'class ="active"';
+                break;
+            case'aboutus':
+                $aboutus = 'class ="active"';
+                break;
+            case'products':
+                $products = 'class ="active"';
+                break;
+            case'certifications':
+                $certificactions = 'class ="active"';
+                break;
+            case'services':
+                $services = 'class ="active"';
+                break;
+            case'retail':
+                $retail = 'class ="active"';
+                break;
+            case'blog':
+                $blog = 'class ="active"';
+                $listado = 'class ="active"';
+                break;
+            case'busquedas':
+                $blog = 'class ="active"';
+                $busqueda = 'class ="active"';
+                break;
+            case'contacto':
+                $contacto = 'class ="active"';
+                break;
+            case'menu':
+                $menu = 'class ="active"';
+                break;
+            case'pagina':
+                $pagina = 'class ="active"';
+                break;
+            case'redes':
+                $redes = 'class ="active"';
+                break;
+            case'logo':
+                $logo = 'class ="active"';
+                break;
+            case'direccion':
+                $direccion = 'class ="active"';
+                break;
+            case'metatags':
+                $metatags = 'class ="active"';
+                break;
+            case'usuarios':
+                $usuarios = 'class ="active"';
+                break;
+            default :
+                $dashboard = 'class ="active"';
+                break;
+        }
+        $data = array(
+            'type' => 'success',
+            'paginas' => array(
+                'dashboard' => $dashboard,
+                'inicio' => $inicio,
+                'aboutus' => $aboutus,
+                'products' => $products,
+                'certificactions' => $certificactions,
+                'services' => $services,
+                'retail' => $retail,
+                'blog' => array(
+                    'blog' => $blog,
+                    'listado' => $listado,
+                    'busqueda' => $busqueda
+                ),
+                'contacto' => $contacto,
+                'menu' => $menu,
+                'pagina' => $pagina,
+                'redes' => $redes,
+                'logo' => $logo,
+                'direccion' => $direccion,
+                'metatags' => $metatags,
+                'usuarios' => $usuarios,
+            )
+        );
+        return $data;
+    }
+
 }
