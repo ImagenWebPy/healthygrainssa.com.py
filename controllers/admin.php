@@ -18,40 +18,6 @@ class Admin extends Controller {
         $this->view->render('admin/footer');
     }
 
-    public function cambiarEstado() {
-        header('Content-type: application/json; charset=utf-8');
-        $datos = array(
-            'id' => $this->helper->cleanInput($_POST['id']),
-            'tabla' => $this->helper->cleanInput($_POST['tabla']),
-            'campo' => $this->helper->cleanInput($_POST['campo']),
-            'seccion' => $this->helper->cleanInput($_POST['seccion']),
-            'estado' => (!empty($_POST['estado'])) ? $this->helper->cleanInput($_POST['estado']) : 0,
-        );
-        $data = $this->model->cambiarEstado($datos);
-        echo json_encode($data);
-    }
-
-    public function modalEliminarContenido() {
-        header('Content-type: application/json; charset=utf-8');
-        $data = array(
-            'id' => (!empty($_POST['id'])) ? $this->helper->cleanInput($_POST['id']) : NULL,
-            'tabla' => (!empty($_POST['tabla'])) ? $this->helper->cleanInput($_POST['tabla']) : NULL,
-            'rowid' => (!empty($_POST['rowid'])) ? $this->helper->cleanInput($_POST['rowid']) : NULL,
-        );
-        $response = $this->model->modalEliminarContenido($data);
-        echo json_encode($response);
-    }
-
-    public function eliminarContenido() {
-        header('Content-type: application/json; charset=utf-8');
-        $data = array(
-            'id' => (!empty($_POST['id'])) ? $this->helper->cleanInput($_POST['id']) : NULL,
-            'tabla' => (!empty($_POST['tabla'])) ? $this->helper->cleanInput($_POST['tabla']) : NULL
-        );
-        $response = $this->model->eliminarContenido($data);
-        echo json_encode($response);
-    }
-
     public function redes() {
         $this->view->helper = $this->helper;
         $this->view->idioma = $this->idioma;
@@ -93,6 +59,54 @@ class Admin extends Controller {
         $this->view->render('admin/footer');
         if (!empty($_SESSION['message']))
             unset($_SESSION['message']);
+    }
+
+    public function direccion() {
+        $this->view->helper = $this->helper;
+        $this->view->idioma = $this->idioma;
+        $this->view->title = 'Direcciones';
+        $this->view->datosDirecciones = $this->model->datosDirecciones();
+        $this->view->public_css = array("css/plugins/toastr/toastr.min.css");
+        $this->view->public_js = array("js/plugins/toastr/toastr.min.js");
+        $this->view->render('admin/header');
+        $this->view->render('admin/direccion/index');
+        $this->view->render('admin/footer');
+        if (!empty($_SESSION['message']))
+            unset($_SESSION['message']);
+    }
+
+    public function cambiarEstado() {
+        header('Content-type: application/json; charset=utf-8');
+        $datos = array(
+            'id' => $this->helper->cleanInput($_POST['id']),
+            'tabla' => $this->helper->cleanInput($_POST['tabla']),
+            'campo' => $this->helper->cleanInput($_POST['campo']),
+            'seccion' => $this->helper->cleanInput($_POST['seccion']),
+            'estado' => (!empty($_POST['estado'])) ? $this->helper->cleanInput($_POST['estado']) : 0,
+        );
+        $data = $this->model->cambiarEstado($datos);
+        echo json_encode($data);
+    }
+
+    public function modalEliminarContenido() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = array(
+            'id' => (!empty($_POST['id'])) ? $this->helper->cleanInput($_POST['id']) : NULL,
+            'tabla' => (!empty($_POST['tabla'])) ? $this->helper->cleanInput($_POST['tabla']) : NULL,
+            'rowid' => (!empty($_POST['rowid'])) ? $this->helper->cleanInput($_POST['rowid']) : NULL,
+        );
+        $response = $this->model->modalEliminarContenido($data);
+        echo json_encode($response);
+    }
+
+    public function eliminarContenido() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = array(
+            'id' => (!empty($_POST['id'])) ? $this->helper->cleanInput($_POST['id']) : NULL,
+            'tabla' => (!empty($_POST['tabla'])) ? $this->helper->cleanInput($_POST['tabla']) : NULL
+        );
+        $response = $this->model->eliminarContenido($data);
+        echo json_encode($response);
     }
 
     public function modalEditarRedes() {
@@ -215,7 +229,7 @@ class Admin extends Controller {
             echo json_encode($response);
         }
     }
-    
+
     public function uploadImgFavicon() {
         header('Content-type: application/json; charset=utf-8');
         if (!empty($_POST)) {
@@ -242,6 +256,22 @@ class Admin extends Controller {
             $response = $this->model->uploadImgFavicon($data);
             echo json_encode($response);
         }
+    }
+
+    public function frmEditarDirecciones() {
+        header('Content-type: application/json; charset=utf-8');
+        $datos = array(
+            'direccion' => (!empty($_POST['direccion'])) ? $this->helper->cleanInput($_POST['direccion']) : NULL,
+            'ciudad' => (!empty($_POST['ciudad'])) ? $this->helper->cleanInput($_POST['ciudad']): NULL,
+            'pais' => (!empty($_POST['pais'])) ? $this->helper->cleanInput($_POST['pais']): NULL,
+            'email' => (!empty($_POST['email'])) ? $this->helper->cleanInput($_POST['email']): NULL,
+            'telefono' => (!empty($_POST['telefono'])) ? $this->helper->cleanInput($_POST['telefono']): NULL,
+            'latitud' => (!empty($_POST['latitud'])) ? $this->helper->cleanInput($_POST['latitud']): NULL,
+            'longitud' => (!empty($_POST['longitud'])) ? $this->helper->cleanInput($_POST['longitud']): NULL,
+            'zoom' => (!empty($_POST['zoom'])) ? $this->helper->cleanInput($_POST['zoom']): 0,
+        );
+        $data = $this->model->frmEditarDirecciones($datos);
+        echo json_encode($data);
     }
 
 }

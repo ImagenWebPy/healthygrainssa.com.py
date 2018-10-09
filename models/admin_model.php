@@ -487,7 +487,7 @@ class Admin_Model extends Model {
         );
         return $data;
     }
-    
+
     public function uploadImgFavicon($datos) {
         $id = 1;
         $update = array(
@@ -502,4 +502,29 @@ class Admin_Model extends Model {
         return $data;
     }
 
+    public function datosDirecciones() {
+        $sql = $this->db->select("select * from datos_contacto where id = 1");
+        return $sql[0];
+    }
+    
+    public function frmEditarDirecciones($datos) {
+        $id = 1;
+        $update = array(
+            'direccion' => utf8_decode($datos['direccion']),
+            'ciudad' => utf8_decode($datos['ciudad']),
+            'pais' => utf8_decode($datos['pais']),
+            'email' => utf8_decode($datos['email']),
+            'telefono' => utf8_decode($datos['telefono']),
+            'latitud' => utf8_decode($datos['latitud']),
+            'longitud' => utf8_decode($datos['longitud']),
+            'zoom' => utf8_decode($datos['zoom']),
+        );
+        $row = $this->db->update('datos_contacto', $update, "id = $id");
+        $data = array(
+            'type' => 'success',
+            'content' => 'Se han actualizado correctamente los datos de contacto',
+            'id' => $id
+        );
+        return $data;
+    }
 }
