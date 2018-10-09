@@ -9,8 +9,16 @@ class Admin_Model extends Model {
     private function rowDataTable($seccion, $tabla, $id) {
 //$sql = $this->db->select("SELECT * FROM $tabla WHERE id = $id;");
         $data = '';
-
-        $sql = $this->db->select("SELECT * FROM $tabla WHERE id = $id;");
+        switch ($tabla) {
+            case 'usuario':
+                $sql = $this->db->select("SELECT wa.nombre, wa.email, wr.descripcion as rol, wa.estado
+                                        FROM usuario wa
+                                        LEFT JOIN usuario_rol wr on wr.id = wa.id_usuario_rol WHERE wa.id = $id;");
+                break;
+            default :
+                $sql = $this->db->select("SELECT * FROM $tabla WHERE id = $id;");
+                break;
+        }
 
         switch ($seccion) {
             case 'redes':
@@ -24,6 +32,20 @@ class Admin_Model extends Model {
                 $data = '<td>' . utf8_encode($sql[0]['orden']) . '</td>'
                         . '<td>' . utf8_encode($sql[0]['descripcion']) . '</td>'
                         . '<td>' . utf8_encode($sql[0]['url']) . '</td>'
+                        . '<td>' . $estado . '</td>'
+                        . '<td>' . $btnEditar . ' ' . $btnBorrar . '</td>';
+                break;
+            case 'usuarios':
+                if ($sql[0]['estado'] == 1) {
+                    $estado = '<a class="pointer btnCambiarEstado" data-seccion="usuarios" data-rowid="usuarios_" data-tabla="usuario" data-campo="estado" data-id="' . $id . '" data-estado="1"><span class="label label-primary">Activo</span></a>';
+                } else {
+                    $estado = '<a class="pointer btnCambiarEstado" data-seccion="usuarios" data-rowid="usuarios_" data-tabla="usuario" data-campo="estado" data-id="' . $id . '" data-estado="0"><span class="label label-danger">Inactivo</span></a>';
+                }
+                $btnEditar = '<a class="editDTContenido pointer btn-xs" data-id="' . $id . '" data-url="modalEditarDTUsuario"><i class="fa fa-edit"></i> Editar </a>';
+                $btnBorrar = '<a class="deletDTContenido pointer btn-xs txt-red" data-rowid="usuarios_" data-id="' . $id . '" data-tabla="usuario"><i class="fa fa-trash-o"></i> Eliminar </a>';
+                $data = '<td>' . utf8_encode($sql[0]['nombre']) . '</td>'
+                        . '<td>' . utf8_encode($sql[0]['email']) . '</td>'
+                        . '<td>' . utf8_encode($sql[0]['rol']) . '</td>'
                         . '<td>' . $estado . '</td>'
                         . '<td>' . $btnEditar . ' ' . $btnBorrar . '</td>';
                 break;
@@ -55,6 +77,17 @@ class Admin_Model extends Model {
                             <div class="col-lg-12">
                                 <h4>¿Estás seguro que deseas eliminar el siguiente contenido?</h4>
                                 <p>' . utf8_encode($sql[0]['descripcion']) . '</p>
+                                <p><a class="pointer btn btn-lg btn-danger btnEliminarContenido" data-tabla="' . $tabla . '" data-id="' . $id . '" data-rowid="' . $rowid . '"><i class="fa fa-trash-o" aria-hidden="true"></i> Eliminar</a></p>
+                            </div>
+                            </div>
+                        </div>';
+                break;
+            case 'usuario':
+                $content = '
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <h4>¿Estás seguro que deseas eliminar al siguiente usuario?</h4>
+                                <p>' . utf8_encode($sql[0]['nombre']) . '</p>
                                 <p><a class="pointer btn btn-lg btn-danger btnEliminarContenido" data-tabla="' . $tabla . '" data-id="' . $id . '" data-rowid="' . $rowid . '"><i class="fa fa-trash-o" aria-hidden="true"></i> Eliminar</a></p>
                             </div>
                             </div>
@@ -287,6 +320,141 @@ class Admin_Model extends Model {
             'id' => $id
         );
         return $data;
+    }
+
+    public function listadoDTUsuarios() {
+        $sql = $this->db->select("SELECT wa.id, wa.nombre, wa.email, wr.descripcion as rol, wa.estado
+                                FROM usuario wa
+                                LEFT JOIN usuario_rol wr on wr.id = wa.id_usuario_rol 
+                                WHERE wa.id != 1");
+        $datos = array();
+        foreach ($sql as $item) {
+            $id = $item['id'];
+            if ($item['estado'] == 1) {
+                $estado = '<a class="pointer btnCambiarEstado" data-seccion="usuarios" data-rowid="usuarios_" data-tabla="usuario" data-campo="estado" data-id="' . $id . '" data-estado="1"><span class="label label-primary">Activo</span></a>';
+            } else {
+                $estado = '<a class="pointer btnCambiarEstado" data-seccion="usuarios" data-rowid="usuarios_" data-tabla="usuario" data-campo="estado" data-id="' . $id . '" data-estado="0"><span class="label label-danger">Inactivo</span></a>';
+            }
+            $btnEditar = '<a class="editDTContenido pointer btn-xs" data-id="' . $id . '" data-url="modalEditarDTUsuario"><i class="fa fa-edit"></i> Editar </a>';
+            $btnBorrar = '<a class="deletDTContenido pointer btn-xs txt-red" data-rowid="usuarios_" data-id="' . $id . '" data-tabla="usuario"><i class="fa fa-trash-o"></i> Eliminar </a>';
+            array_push($datos, array(
+                "DT_RowId" => "usuarios_$id",
+                'nombre' => utf8_encode($item['nombre']),
+                'email' => utf8_encode($item['email']),
+                'rol' => utf8_encode($item['rol']),
+                'estado' => $estado,
+                'accion' => $btnEditar . ' ' . $btnBorrar
+            ));
+        }
+        $json = '{"data": ' . json_encode($datos) . '}';
+        return $json;
+    }
+
+    public function frmEditarUsuario($datos) {
+        $id = $datos['id'];
+        $estado = 1;
+        if (empty($datos['estado'])) {
+            $estado = 0;
+        }
+        $contrasena = $datos['contrasena'];
+        if (!empty($contrasena)) {
+            $update = array(
+                'nombre' => utf8_decode($datos['nombre']),
+                'email' => utf8_decode($datos['email']),
+                'id_usuario_rol' => utf8_decode($datos['id_usuario_rol']),
+                'contrasena' => Hash::create('sha256', $contrasena, HASH_PASSWORD_KEY),
+                'estado' => $estado
+            );
+        } else {
+            $update = array(
+                'nombre' => utf8_decode($datos['nombre']),
+                'email' => utf8_decode($datos['email']),
+                'id_usuario_rol' => utf8_decode($datos['id_usuario_rol']),
+                'estado' => $estado
+            );
+        }
+        $this->db->update('usuario', $update, "id = $id");
+        $data = array(
+            'type' => 'success',
+            'content' => $this->rowDataTable('usuarios', 'usuario', $id),
+            'message' => 'Se han Actualizado correctamente los datos del usuario ' . $datos['nombre'],
+            'id' => $id
+        );
+        return $data;
+    }
+
+    public function modalAgregarUsuario($lng) {
+        $sqlRoles = $this->db->select("select * from usuario_rol where estado = 1");
+        $modal = '<div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Agregar Datos</h3>
+                    </div>
+                    <div class="row">
+                        <form role="form" action="' . URL . $lng . '/admin/frmAgregarUsuario" method="POST">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Nombre</label>
+                                    <input type="text" name="nombre" class="form-control" placeholder="Nombre" value="">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="text" name="email" class="form-control" placeholder="Email" value="">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Rol</label>
+                                    <select class="form-control m-b" name="id_usuario_rol" required> 
+                                        <option value="">Seleccione un Rol</option>';
+        foreach ($sqlRoles as $item) {
+            $modal .= '                 <option value="' . $item['id'] . '">' . $item['descripcion'] . '</option>';
+        }
+        $modal .= '                </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="i-checks"><label> <input type="checkbox" name="estado" value="1"> <i></i> Mostrar </label></div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Contraseña</label>
+                                    <input type="text" name="contrasena" class="form-control" placeholder="Contraseña" value="" required>
+                                </div>
+                            </div>
+                            <div class="clearfix"></div>
+                            <div class="btn-submit">
+                                <button type="submit" class="btn btn-block btn-primary btn-lg">Agregar Usuario</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <script>
+                    $(document).ready(function () {
+                        $(".i-checks").iCheck({
+                            checkboxClass: "icheckbox_square-green",
+                            radioClass: "iradio_square-green",
+                        });
+                    });
+                </script>';
+        $data = array(
+            'titulo' => 'Agregar Usuario',
+            'content' => $modal
+        );
+        return $data;
+    }
+
+    public function frmAgregarUsuario($datos) {
+        $this->db->insert('usuario', array(
+            'id_usuario_rol' => utf8_decode($datos['id_usuario_rol']),
+            'email' => utf8_decode($datos['email']),
+            'contrasena' => Hash::create('sha256', utf8_decode($datos['contrasena']), HASH_PASSWORD_KEY),
+            'nombre' => utf8_decode($datos['nombre']),
+            'estado' => $datos['estado']
+        ));
+        $id = $this->db->lastInsertId();
+        return $id;
     }
 
 }
