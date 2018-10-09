@@ -81,6 +81,20 @@ class Admin extends Controller {
             unset($_SESSION['message']);
     }
 
+    public function logo() {
+        $this->view->helper = $this->helper;
+        $this->view->idioma = $this->idioma;
+        $this->view->title = 'Logo';
+        $this->view->logos = $this->helper->getLogos();
+        $this->view->public_css = array("css/plugins/html5fileupload/html5fileupload.css");
+        $this->view->publicHeader_js = array("js/plugins/html5fileupload/html5fileupload.min.js");
+        $this->view->render('admin/header');
+        $this->view->render('admin/logo/index');
+        $this->view->render('admin/footer');
+        if (!empty($_SESSION['message']))
+            unset($_SESSION['message']);
+    }
+
     public function modalEditarRedes() {
         header('Content-type: application/json; charset=utf-8');
         $data = array(
@@ -172,6 +186,62 @@ class Admin extends Controller {
             }
         }
         header('Location:' . URL . $this->idioma . '/admin/usuarios/');
+    }
+
+    public function uploadImgLogoCabacera() {
+        header('Content-type: application/json; charset=utf-8');
+        if (!empty($_POST)) {
+            $error = false;
+            $absolutedir = dirname(__FILE__);
+            $dir = 'public/images/';
+            $this->model->unlinkImagen('logo', 'logo', 1, NULL);
+            $serverdir = $dir;
+            $tmp = explode(',', $_POST['file']);
+            $file = base64_decode($tmp[1]);
+            $ext = explode('.', $_POST['filename']);
+            $extension = strtolower(end($ext));
+            $name = $_POST['name'];
+            $filename = $this->helper->cleanUrl($name);
+            $filename = $filename . '.' . $extension;
+            $handle = fopen($serverdir . $filename, 'w');
+            fwrite($handle, $file);
+            fclose($handle);
+
+            header('Content-type: application/json; charset=utf-8');
+            $data = array(
+                'imagen' => $filename
+            );
+            $response = $this->model->uploadImgLogoCabacera($data);
+            echo json_encode($response);
+        }
+    }
+    
+    public function uploadImgFavicon() {
+        header('Content-type: application/json; charset=utf-8');
+        if (!empty($_POST)) {
+            $error = false;
+            $absolutedir = dirname(__FILE__);
+            $dir = 'public/images/';
+            $this->model->unlinkImagen('favicon', 'logo', 1, NULL);
+            $serverdir = $dir;
+            $tmp = explode(',', $_POST['file']);
+            $file = base64_decode($tmp[1]);
+            $ext = explode('.', $_POST['filename']);
+            $extension = strtolower(end($ext));
+            $name = $_POST['name'];
+            $filename = $this->helper->cleanUrl($name);
+            $filename = $filename . '.' . $extension;
+            $handle = fopen($serverdir . $filename, 'w');
+            fwrite($handle, $file);
+            fclose($handle);
+
+            header('Content-type: application/json; charset=utf-8');
+            $data = array(
+                'imagen' => $filename
+            );
+            $response = $this->model->uploadImgFavicon($data);
+            echo json_encode($response);
+        }
     }
 
 }

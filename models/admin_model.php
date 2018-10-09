@@ -53,6 +53,23 @@ class Admin_Model extends Model {
         return $data;
     }
 
+    /**
+     * 
+     * @param string $campo
+     * @param string $tabla
+     * @param int $id
+     * @param string $carpeta
+     */
+    public function unlinkImagen($campo, $tabla, $id, $carpeta = NULL) {
+        $sql = $this->db->select("select $campo from $tabla where id = $id");
+        $dir = (!empty($carpeta)) ? 'public/images/' . $carpeta . '/' : 'public/images/';
+        if (!empty($sql)) {
+            if (file_exists($dir . $sql[0][$campo])) {
+                unlink($dir . $sql[0][$campo]);
+            }
+        }
+    }
+
     public function modalEliminarContenido($datos) {
         $content = '';
         $id = $datos['id'];
@@ -455,6 +472,34 @@ class Admin_Model extends Model {
         ));
         $id = $this->db->lastInsertId();
         return $id;
+    }
+
+    public function uploadImgLogoCabacera($datos) {
+        $id = 1;
+        $update = array(
+            'logo' => $datos['imagen']
+        );
+        $this->db->update('logo', $update, "id = $id");
+        $contenido = '<img class="img-responsive" src="' . URL . 'public/images/' . $datos['imagen'] . '">';
+        $data = array(
+            "result" => true,
+            'content' => $contenido,
+        );
+        return $data;
+    }
+    
+    public function uploadImgFavicon($datos) {
+        $id = 1;
+        $update = array(
+            'favicon' => $datos['imagen']
+        );
+        $this->db->update('logo', $update, "id = $id");
+        $contenido = '<img class="img-responsive" src="' . URL . 'public/images/' . $datos['imagen'] . '">';
+        $data = array(
+            "result" => true,
+            'content' => $contenido,
+        );
+        return $data;
     }
 
 }
