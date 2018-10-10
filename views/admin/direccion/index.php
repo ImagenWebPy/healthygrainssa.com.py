@@ -85,7 +85,7 @@ if (isset($_SESSION['message'])) {
                 success: function (data)
                 {
                     if (data.type == 'success') {
-                        toastr.success(data.content)
+                        mostrarToastr(data.content)
                     }
                 }
             });

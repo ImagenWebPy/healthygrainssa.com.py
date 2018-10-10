@@ -103,3 +103,13 @@ function paginasSesion(url, fechaInicio, fechaFin) {
         }
     });
 }
+
+function mostrarToastr(mensaje) {
+    toastr.options = {
+        closeButton: true,
+        progressBar: true,
+        showMethod: 'slideDown',
+        timeOut: 4000
+    };
+    toastr.success(mensaje);
+}

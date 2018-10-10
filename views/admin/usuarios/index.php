@@ -87,7 +87,7 @@ if (isset($_SESSION['message'])) {
                 {
                     $("#usuarios_" + data.id).html(data.content);
                     $(".genericModal").modal("toggle");
-                    toastr.success(data.message);
+                    mostrarToastr(data.message);
                 }
             });
             e.preventDefault(); // avoid to execute the actual submit of the form.

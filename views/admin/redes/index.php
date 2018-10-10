@@ -77,7 +77,7 @@ if (isset($_SESSION['message'])) {
                     {
                         $("#redes_" + data.id).html(data.content);
                         $(".genericModal").modal("toggle");
-                        toastr.success(data.mensaje);
+                        mostrarToastr(data.mensaje);
                     }
                 });
             }
@@ -96,7 +96,7 @@ if (isset($_SESSION['message'])) {
                     {
                         $("#tablaRedes").append(data.content);
                         $(".genericModal").modal("toggle");
-                        toastr.success(data.mensaje);
+                        mostrarToastr(data.mensaje);
                     }
                 });
             }
