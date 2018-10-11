@@ -63,14 +63,13 @@ if (isset($this->js)) {
             {
                 var id = $(this).attr("data-id");
                 var url = $(this).attr("data-url");
+                var pagina = $(this).attr("data-pagina");
                 $.ajax({
                     url: "<?= URL . $this->idioma; ?>/admin/" + url,
                     type: "POST",
                     data: {id: id},
                     dataType: "json"
                 }).done(function (data) {
-
-
                     $(".genericModal .modal-header").removeClass("modal-header").addClass("modal-header bg-primary");
                     $(".genericModal .modal-title").html(data.titulo);
                     $(".genericModal .modal-body").html(data.content);
@@ -92,6 +91,30 @@ if (isset($this->js)) {
                         autoclose: true,
                         format: "dd/mm/yyyy",
                     });
+                    switch (pagina) {
+                        case 'blog':
+                            $(".html5fileupload.fileBlog").html5fileupload({
+                                data: {id: data.id},
+                                onAfterStartSuccess: function (response) {
+                                    $("#imgBlog" + response.id).html(response.content);
+                                }
+                            });
+                            $(".html5fileupload.fileTestimonio").html5fileupload({
+                                data: {id: data.id},
+                                onAfterStartSuccess: function (response) {
+                                    $("#imgBlogHeader" + response.id).html(response.content);
+                                }
+                            });
+                            break;
+                        case 'slider':
+                            $(".html5fileupload.fileSliderHealthy").html5fileupload({
+                                data: {id: data.id},
+                                onAfterStartSuccess: function (response) {
+                                    $("#imgSlider" + response.id).html(response.content);
+                                }
+                            });
+                            break;
+                    }
                 });
             }
             e.handled = true;
