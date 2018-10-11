@@ -95,6 +95,9 @@ class Admin extends Controller {
         $this->view->idioma = $this->idioma;
         $this->view->title = 'Inicio';
 
+        $this->view->datosSeccion1 = $this->model->datosSeccion(1);
+        $this->view->datosSeccion2 = $this->model->datosSeccion(2);
+
         $this->view->public_css = array("css/plugins/dataTables/datatables.min.css", "css/plugins/html5fileupload/html5fileupload.css", "css/plugins/toastr/toastr.min.css", "css/plugins/iCheck/custom.css", "css/plugins/summernote/summernote.css");
         $this->view->publicHeader_js = array("js/plugins/html5fileupload/html5fileupload.min.js");
         $this->view->public_js = array("js/plugins/dataTables/datatables.min.js", "js/plugins/toastr/toastr.min.js", "js/plugins/summernote/summernote.min.js", "js/plugins/iCheck/icheck.min.js");
@@ -734,4 +737,68 @@ class Admin extends Controller {
         header('Location:' . URL . $this->idioma . '/admin/inicio/');
     }
 
+    public function frmEditarIndexSeccion1() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = array(
+            'id' => $this->helper->cleanInput($_POST['id']),
+            'es_titulo' => (!empty($_POST['es_titulo'])) ? $this->helper->cleanInput($_POST['es_titulo']) : NULL,
+            'es_contenido' => (!empty($_POST['es_contenido'])) ? $_POST['es_contenido'] : NULL,
+            'en_titulo' => (!empty($_POST['en_titulo'])) ? $this->helper->cleanInput($_POST['en_titulo']) : NULL,
+            'en_contenido' => (!empty($_POST['en_contenido'])) ? $_POST['en_contenido'] : NULL,
+            'estado' => (!empty($_POST['estado'])) ? $this->helper->cleanInput($_POST['estado']) : 0
+        );
+        $datos = $this->model->frmEditarIndexSeccion1($data);
+        echo json_encode($datos);
+    }
+
+    public function frmEditarIndexSeccion2() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = array(
+            'id' => $this->helper->cleanInput($_POST['id']),
+            'es_titulo' => (!empty($_POST['es_titulo'])) ? $this->helper->cleanInput($_POST['es_titulo']) : NULL,
+            'en_titulo' => (!empty($_POST['en_titulo'])) ? $_POST['en_titulo'] : NULL,
+            'es_contenido' => (!empty($_POST['es_contenido'])) ? $_POST['es_contenido'] : NULL,
+            'en_contenido' => (!empty($_POST['en_contenido'])) ? $_POST['en_contenido'] : NULL,
+            'estado' => (!empty($_POST['estado'])) ? $this->helper->cleanInput($_POST['estado']) : 0
+        );
+        $datos = $this->model->frmEditarIndexSeccion2($data);
+        echo json_encode($datos);
+    }
+    
+    public function uploadImgSeccion2() {
+        if (!empty($_POST)) {
+            $this->model->unlinkImagen('imagen', 'index_seccion2', 1, NULL);
+            $absolutedir = dirname(__FILE__);
+            $dir = 'public/images/';
+            $serverdir = $dir;
+            $tmp = explode(',', $_POST['file']);
+            $file = base64_decode($tmp[1]);
+            $ext = explode('.', $_POST['filename']);
+            $extension = strtolower(end($ext));
+            $name = $_POST['name'];
+            $filename = $this->helper->cleanUrl($name);
+            $filename = $filename . '.' . $extension;
+            $handle = fopen($serverdir . $filename, 'w');
+            fwrite($handle, $file);
+            fclose($handle);
+            #############
+            #SE REDIMENSIONA LA IMAGEN
+            #############
+            # ruta de la imagen a redimensionar 
+            $imagen = $serverdir . $filename;
+            # ruta de la imagen final, si se pone el mismo nombre que la imagen, esta se sobreescribe 
+            $imagen_final = $filename;
+            $ancho = 1920;
+            $alto = 1080;
+            $this->helper->redimensionar($imagen, $imagen_final, $ancho, $alto, $serverdir);
+
+            #############
+            header('Content-type: application/json; charset=utf-8');
+            $data = array(
+                'imagen' => $filename
+            );
+            $response = $this->model->uploadImgSeccion2($data);
+            echo json_encode($response);
+        }
+    }
 }

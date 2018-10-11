@@ -1507,4 +1507,65 @@ class Admin_Model extends Model {
         $this->db->update('slider', $update, "id = $id");
     }
 
+    public function datosSeccion($seccion) {
+        $sql = $this->db->select("select * from index_seccion" . $seccion . " where id = 1");
+        return $sql[0];
+    }
+
+    public function frmEditarIndexSeccion1($datos) {
+        $id = $datos['id'];
+        $estado = 1;
+        if (empty($datos['estado'])) {
+            $estado = 0;
+        }
+        $update = array(
+            'es_titulo' => utf8_decode($datos['es_titulo']),
+            'en_titulo' => utf8_decode($datos['en_titulo']),
+            'es_contenido' => utf8_decode($datos['es_contenido']),
+            'en_contenido' => utf8_decode($datos['en_contenido']),
+            'estado' => $estado
+        );
+        $this->db->update('index_seccion1', $update, "id = $id");
+        $data = array(
+            'type' => 'success',
+            'mensaje' => 'Se ha actualizado el contenido de la sección 1'
+        );
+        return $data;
+    }
+
+    public function frmEditarIndexSeccion2($datos) {
+        $id = $datos['id'];
+        $estado = 1;
+        if (empty($datos['estado'])) {
+            $estado = 0;
+        }
+        $update = array(
+            'es_titulo' => utf8_decode($datos['es_titulo']),
+            'en_titulo' => utf8_decode($datos['en_titulo']),
+            'es_contenido' => utf8_decode($datos['es_contenido']),
+            'en_contenido' => utf8_decode($datos['en_contenido']),
+            'estado' => $estado
+        );
+        $this->db->update('index_seccion2', $update, "id = $id");
+        $data = array(
+            'type' => 'success',
+            'mensaje' => 'Se ha actualizado el contenido de la sección 2'
+        );
+        return $data;
+    }
+
+    public function uploadImgSeccion2($data) {
+        $id = 1;
+        $update = array(
+            'imagen' => $data['imagen']
+        );
+        $this->db->update('index_seccion2', $update, "id = $id");
+        $contenido = '<img class="img-responsive" src="' . URL . 'public/images/' . $data['imagen'] . '">';
+        $datos = array(
+            "result" => TRUE,
+            'content' => $contenido
+        );
+        return $datos;
+    }
+
 }
