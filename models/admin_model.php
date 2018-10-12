@@ -1175,6 +1175,70 @@ class Admin_Model extends Model {
         return $json;
     }
 
+    public function listadoDTProductos() {
+        $sql = $this->db->select("SELECT * FROM productos ORDER BY orden ASC;");
+        $datos = array();
+        foreach ($sql as $item) {
+            $id = $item['id'];
+            if ($item['estado'] == 1) {
+                $estado = '<a class="pointer btnCambiarEstado" data-seccion="productos" data-rowid="productos_" data-tabla="productos" data-campo="estado" data-id="' . $id . '" data-estado="1"><span class="label label-primary">Activo</span></a>';
+            } else {
+                $estado = '<a class="pointer btnCambiarEstado" data-seccion="productos" data-rowid="productos_" data-tabla="productos" data-campo="estado" data-id="' . $id . '" data-estado="0"><span class="label label-danger">Inactivo</span></a>';
+            }
+            $btnListado = '<a class="mostrarListadoProductos pointer btn-xs" data-id="' . $id . '"><i class="fa fa-list"></i> Listado </a>';
+            $btnEditar = '<a class="editDTContenido pointer btn-xs" data-id="' . $id . '" data-url="modalEditarDTProducto" data-pagina="productos"><i class="fa fa-edit"></i> Editar </a>';
+            $btnBorrar = '<a class="deletDTContenido pointer btn-xs txt-red" data-rowid="productos_" data-id="' . $id . '" data-tabla="productos"><i class="fa fa-trash-o"></i> Eliminar </a>';
+            if (!empty($item['imagen'])) {
+                $img = '<img src="' . URL . 'public/images/productos/' . $item['imagen'] . '" style="width: 160px;">';
+            } else {
+                $img = '-';
+            }
+            array_push($datos, array(
+                "DT_RowId" => "slider_$id",
+                'orden' => $item['orden'],
+                'imagen' => $img,
+                'es_producto' => utf8_encode($item['es_producto']),
+                'en_producto' => utf8_encode($item['en_producto']),
+                'estado' => $estado,
+                'editar' => $btnListado . ' ' . $btnEditar . ' ' . $btnBorrar
+            ));
+        }
+        $json = '{"data": ' . json_encode($datos) . '}';
+        return $json;
+    }
+
+    public function listadoDTItemProductos($datos) {
+        $id_producto = $datos['id_producto'];
+        $sql = $this->db->select("SELECT * FROM productos_items where id_producto = $id_producto ORDER BY orden ASC;");
+        $datos = array();
+        foreach ($sql as $item) {
+            $id = $item['id'];
+            if ($item['estado'] == 1) {
+                $estado = '<a class="pointer btnCambiarEstado" data-seccion="itemProductos" data-rowid="itemProductos_" data-tabla="productos_items" data-campo="estado" data-id="' . $id . '" data-estado="1"><span class="label label-primary">Activo</span></a>';
+            } else {
+                $estado = '<a class="pointer btnCambiarEstado" data-seccion="itemProductos" data-rowid="itemProductos_" data-tabla="productos_items" data-campo="estado" data-id="' . $id . '" data-estado="0"><span class="label label-danger">Inactivo</span></a>';
+            }
+            $btnEditar = '<a class="editDTContenido pointer btn-xs" data-id="' . $id . '" data-url="modalEditarDTProducto" data-pagina="itemProductos"><i class="fa fa-edit"></i> Editar </a>';
+            $btnBorrar = '<a class="deletDTContenido pointer btn-xs txt-red" data-rowid="itemProductos_" data-id="' . $id . '" data-tabla="productos_items"><i class="fa fa-trash-o"></i> Eliminar </a>';
+            if (!empty($item['imagen'])) {
+                $img = '<img src="' . URL . 'public/images/productos/items/' . $item['imagen'] . '" style="width: 160px;">';
+            } else {
+                $img = '-';
+            }
+            array_push($datos, array(
+                "DT_RowId" => "itemProductos_$id",
+                'orden' => $item['orden'],
+                'imagen' => $img,
+                'es_nombre' => utf8_encode($item['es_nombre']),
+                'en_nombre' => utf8_encode($item['en_nombre']),
+                'estado' => $estado,
+                'editar' => $btnEditar . ' ' . $btnBorrar
+            ));
+        }
+        $json = '{"data": ' . json_encode($datos) . '}';
+        return $json;
+    }
+
     public function modalEditarDTSlider($datos) {
         $id = $datos['id'];
         $lng = $datos['lng'];

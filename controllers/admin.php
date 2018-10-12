@@ -108,6 +108,41 @@ class Admin extends Controller {
             unset($_SESSION['message']);
     }
 
+    public function products() {
+        $this->view->helper = $this->helper;
+        $this->view->idioma = $this->idioma;
+        $this->view->title = 'Productos';
+
+        $this->view->datosHeaderNosotros = $this->model->datosHeaderNosotros();
+        $this->view->datosContenidoNosotros = $this->model->datosContenidoNosotros();
+
+        $this->view->public_css = array("css/plugins/dataTables/datatables.min.css", "css/plugins/html5fileupload/html5fileupload.css", "css/plugins/toastr/toastr.min.css", "css/plugins/iCheck/custom.css", "css/plugins/summernote/summernote.css");
+        $this->view->publicHeader_js = array("js/plugins/html5fileupload/html5fileupload.min.js");
+        $this->view->public_js = array("js/plugins/dataTables/datatables.min.js", "js/plugins/toastr/toastr.min.js", "js/plugins/summernote/summernote.min.js", "js/plugins/iCheck/icheck.min.js", "js/plugins/redirect/jquery.redirect.js");
+        $this->view->render('admin/header');
+        $this->view->render('admin/products/index');
+        $this->view->render('admin/footer');
+        if (!empty($_SESSION['message']))
+            unset($_SESSION['message']);
+    }
+
+    public function listadoProductos() {
+        $this->view->helper = $this->helper;
+        $this->view->idioma = $this->idioma;
+        $this->view->title = 'Listado de Productos';
+
+        $this->view->id_producto = $this->helper->cleanInput($_POST['id']);
+
+        $this->view->public_css = array("css/plugins/dataTables/datatables.min.css", "css/plugins/html5fileupload/html5fileupload.css", "css/plugins/toastr/toastr.min.css", "css/plugins/iCheck/custom.css", "css/plugins/summernote/summernote.css");
+        $this->view->publicHeader_js = array("js/plugins/html5fileupload/html5fileupload.min.js");
+        $this->view->public_js = array("js/plugins/dataTables/datatables.min.js", "js/plugins/toastr/toastr.min.js", "js/plugins/summernote/summernote.min.js", "js/plugins/iCheck/icheck.min.js", "js/plugins/redirect/jquery.redirect.js");
+        $this->view->render('admin/header');
+        $this->view->render('admin/products/listado');
+        $this->view->render('admin/footer');
+        if (!empty($_SESSION['message']))
+            unset($_SESSION['message']);
+    }
+
     public function inicio() {
         $this->view->helper = $this->helper;
         $this->view->idioma = $this->idioma;
@@ -621,6 +656,22 @@ class Admin extends Controller {
     public function listadoDTSlider() {
         header('Content-type: application/json; charset=utf-8');
         $data = $this->model->listadoDTSlider();
+        echo $data;
+    }
+
+    public function listadoDTProductos() {
+        header('Content-type: application/json; charset=utf-8');
+
+        $data = $this->model->listadoDTProductos();
+        echo $data;
+    }
+
+    public function listadoDTItemProductos() {
+        header('Content-type: application/json; charset=utf-8');
+        $datos = array(
+            'id_producto' => $this->helper->cleanInput($_POST['id_producto'])
+        );
+        $data = $this->model->listadoDTItemProductos($datos);
         echo $data;
     }
 
