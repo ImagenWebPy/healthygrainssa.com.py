@@ -1754,7 +1754,7 @@ class Admin_Model extends Model {
                 $estado = '<a class="pointer btnCambiarEstado" data-seccion="nosotrosSeccion3" data-rowid="nosotrosSeccion3_" data-tabla="aboutus_seccion3" data-campo="estado" data-id="' . $id . '" data-estado="0"><span class="label label-danger">Inactivo</span></a>';
             }
             $btnEditar = '<a class="editDTContenido pointer btn-xs" data-id="' . $id . '" data-url="modalEditarDTNosotrosSeccion3"><i class="fa fa-edit"></i> Editar </a>';
-            $btnBorrar = '<a class="deletDTContenido pointer btn-xs txt-red" data-rowid="aboutus_seccion3" data-id="' . $id . '" data-tabla="aboutus_seccion3"><i class="fa fa-trash-o"></i> Eliminar </a>';
+            $btnBorrar = '<a class="deletDTContenido pointer btn-xs txt-red" data-rowid="nosotrosSeccion3_" data-id="' . $id . '" data-tabla="aboutus_seccion3"><i class="fa fa-trash-o"></i> Eliminar </a>';
             array_push($datos, array(
                 "DT_RowId" => "nosotrosSeccion3_$id",
                 'orden' => $item['orden'],
@@ -2004,7 +2004,7 @@ class Admin_Model extends Model {
         $btnBorrar = '<a class="deletDTContenido pointer btn-xs txt-red" data-rowid="nosotrosSeccion3_" data-id="' . $id . '" data-tabla="aboutus_seccion3"><i class="fa fa-trash-o"></i> Eliminar </a>';
         $data = array(
             'type' => 'success',
-            'content' => '<tr id="fraseNosotros_' . $id . '" role="row" class="odd">'
+            'content' => '<tr id="nosotrosSeccion3_' . $id . '" role="row" class="odd">'
             . '<td class="sorting_1">' . utf8_encode($sql[0]['orden']) . '</td>'
             . '<td>' . utf8_encode($sql[0]['es_titulo']) . '</td>'
             . '<td>' . utf8_encode($sql[0]['en_titulo']) . '</td>'
