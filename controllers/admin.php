@@ -90,6 +90,24 @@ class Admin extends Controller {
             unset($_SESSION['message']);
     }
 
+    public function aboutus() {
+        $this->view->helper = $this->helper;
+        $this->view->idioma = $this->idioma;
+        $this->view->title = 'Nosotros';
+
+        $this->view->datosHeaderNosotros = $this->model->datosHeaderNosotros();
+        $this->view->datosContenidoNosotros = $this->model->datosContenidoNosotros();
+
+        $this->view->public_css = array("css/plugins/dataTables/datatables.min.css", "css/plugins/html5fileupload/html5fileupload.css", "css/plugins/toastr/toastr.min.css", "css/plugins/iCheck/custom.css", "css/plugins/summernote/summernote.css");
+        $this->view->publicHeader_js = array("js/plugins/html5fileupload/html5fileupload.min.js");
+        $this->view->public_js = array("js/plugins/dataTables/datatables.min.js", "js/plugins/toastr/toastr.min.js", "js/plugins/summernote/summernote.min.js", "js/plugins/iCheck/icheck.min.js");
+        $this->view->render('admin/header');
+        $this->view->render('admin/nosotros/index');
+        $this->view->render('admin/footer');
+        if (!empty($_SESSION['message']))
+            unset($_SESSION['message']);
+    }
+
     public function inicio() {
         $this->view->helper = $this->helper;
         $this->view->idioma = $this->idioma;
@@ -764,7 +782,7 @@ class Admin extends Controller {
         $datos = $this->model->frmEditarIndexSeccion2($data);
         echo json_encode($datos);
     }
-    
+
     public function uploadImgSeccion2() {
         if (!empty($_POST)) {
             $this->model->unlinkImagen('imagen', 'index_seccion2', 1, NULL);
@@ -801,4 +819,197 @@ class Admin extends Controller {
             echo json_encode($response);
         }
     }
+
+    public function frmEditarAboutus_header() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = array(
+            'id' => $this->helper->cleanInput($_POST['id']),
+            'es_titulo' => (!empty($_POST['es_titulo'])) ? $this->helper->cleanInput($_POST['es_titulo']) : NULL,
+            'en_titulo' => (!empty($_POST['en_titulo'])) ? $this->helper->cleanInput($_POST['en_titulo']) : NULL,
+            'es_frase' => (!empty($_POST['es_frase'])) ? $this->helper->cleanInput($_POST['es_frase']) : NULL,
+            'en_frase' => (!empty($_POST['en_frase'])) ? $this->helper->cleanInput($_POST['en_frase']) : NULL,
+        );
+        $datos = $this->model->frmEditarAboutus_header($data);
+        echo json_encode($datos);
+    }
+
+    public function frmEditarAboutus_seccion1() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = array(
+            'id' => $this->helper->cleanInput($_POST['id']),
+            'es_contenido' => (!empty($_POST['es_contenido'])) ? $this->helper->cleanInput($_POST['es_contenido']) : NULL,
+            'en_contenido' => (!empty($_POST['en_contenido'])) ? $this->helper->cleanInput($_POST['en_contenido']) : NULL,
+        );
+        $datos = $this->model->frmEditarAboutus_seccion1($data);
+        echo json_encode($datos);
+    }
+
+    public function frmEditarFraseNosotros() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = array(
+            'id' => $this->helper->cleanInput($_POST['id']),
+            'es_frase' => (!empty($_POST['es_frase'])) ? $this->helper->cleanInput($_POST['es_frase']) : NULL,
+            'en_frase' => (!empty($_POST['en_frase'])) ? $this->helper->cleanInput($_POST['en_frase']) : NULL,
+            'orden' => (!empty($_POST['orden'])) ? $this->helper->cleanInput($_POST['orden']) : NULL,
+            'estado' => (!empty($_POST['estado'])) ? $this->helper->cleanInput($_POST['estado']) : 0,
+        );
+        $datos = $this->model->frmEditarFraseNosotros($data);
+        echo json_encode($datos);
+    }
+
+    public function frmEditarNosotrosSeccion3() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = array(
+            'id' => $this->helper->cleanInput($_POST['id']),
+            'es_titulo' => (!empty($_POST['es_titulo'])) ? $this->helper->cleanInput($_POST['es_titulo']) : NULL,
+            'es_contenido' => (!empty($_POST['es_contenido'])) ? $this->helper->cleanInput($_POST['es_contenido']) : NULL,
+            'en_titulo' => (!empty($_POST['en_titulo'])) ? $this->helper->cleanInput($_POST['en_titulo']) : NULL,
+            'en_contenido' => (!empty($_POST['en_contenido'])) ? $this->helper->cleanInput($_POST['en_contenido']) : NULL,
+            'orden' => (!empty($_POST['orden'])) ? $this->helper->cleanInput($_POST['orden']) : NULL,
+            'estado' => (!empty($_POST['estado'])) ? $this->helper->cleanInput($_POST['estado']) : 0,
+        );
+        $datos = $this->model->frmEditarNosotrosSeccion3($data);
+        echo json_encode($datos);
+    }
+
+    public function uploadImgHeaderNosotros() {
+        if (!empty($_POST)) {
+            $this->model->unlinkImagen('imagen_header', 'aboutus_header', 1, NULL);
+            $error = false;
+            $absolutedir = dirname(__FILE__);
+            $dir = 'public/images/header/';
+            $serverdir = $dir;
+            $tmp = explode(',', $_POST['file']);
+            $file = base64_decode($tmp[1]);
+            $ext = explode('.', $_POST['filename']);
+            $extension = strtolower(end($ext));
+            $name = $_POST['name'];
+            $filename = $this->helper->cleanUrl($name);
+            $filename = $filename . '.' . $extension;
+            $handle = fopen($serverdir . $filename, 'w');
+            fwrite($handle, $file);
+            fclose($handle);
+            #REDIMENSIONAR
+            $imagen = $serverdir . $filename;
+            $imagen_final = $filename;
+            $ancho = 1920;
+            $alto = 1080;
+            $this->helper->redimensionar($imagen, $imagen_final, $ancho, $alto, $serverdir);
+            #############
+            header('Content-type: application/json; charset=utf-8');
+            $data = array(
+                'imagen' => $filename
+            );
+            $response = $this->model->uploadImgHeaderNosotros($data);
+            echo json_encode($response);
+        }
+    }
+
+    public function listadoDTFraseNosotros() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = $this->model->listadoDTFraseNosotros();
+        echo $data;
+    }
+
+    public function listadoDTNosotrosSeccion3() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = $this->model->listadoDTNosotrosSeccion3();
+        echo $data;
+    }
+
+    public function modalEditarDTFraseNosotros() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = array(
+            'id' => $this->helper->cleanInput($_POST['id'])
+        );
+        $datos = $this->model->modalEditarDTFraseNosotros($data);
+        echo $datos;
+    }
+
+    public function modalEditarDTNosotrosSeccion3() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = array(
+            'id' => $this->helper->cleanInput($_POST['id']),
+        );
+        $datos = $this->model->modalEditarDTNosotrosSeccion3($data);
+        echo $datos;
+    }
+
+    public function modalAgregarItemNosotrosSeccion3() {
+        header('Content-type: application/json; charset=utf-8');
+        $datos = $this->model->modalAgregarItemNosotrosSeccion3();
+        echo json_encode($datos);
+    }
+
+    public function modalAgregarItemFraseNosotros() {
+        header('Content-type: application/json; charset=utf-8');
+        $datos = $this->model->modalAgregarItemFraseNosotros();
+        echo json_encode($datos);
+    }
+
+    public function frmAgregarFraseNosotros() {
+        header('Content-type: application/json; charset=utf-8');
+        $datos = array(
+            'es_frase' => (!empty($_POST['es_frase'])) ? $this->helper->cleanInput($_POST['es_frase']) : NULL,
+            'en_frase' => (!empty($_POST['en_frase'])) ? $this->helper->cleanInput($_POST['en_frase']) : NULL,
+            'orden' => (!empty($_POST['orden'])) ? $this->helper->cleanInput($_POST['orden']) : NULL,
+            'estado' => (!empty($_POST['estado'])) ? $this->helper->cleanInput($_POST['estado']) : 0,
+        );
+        $data = $this->model->frmAgregarFraseNosotros($datos);
+        echo json_encode($data);
+    }
+
+    public function frmAgregarNosotrosSeccion3() {
+        header('Content-type: application/json; charset=utf-8');
+        $datos = array(
+            'es_titulo' => (!empty($_POST['es_titulo'])) ? $this->helper->cleanInput($_POST['es_titulo']) : NULL,
+            'en_titulo' => (!empty($_POST['en_titulo'])) ? $this->helper->cleanInput($_POST['en_titulo']) : NULL,
+            'es_contenido' => (!empty($_POST['es_contenido'])) ? $this->helper->cleanInput($_POST['es_contenido']) : NULL,
+            'en_contenido' => (!empty($_POST['en_contenido'])) ? $this->helper->cleanInput($_POST['en_contenido']) : NULL,
+            'orden' => (!empty($_POST['orden'])) ? $this->helper->cleanInput($_POST['orden']) : NULL,
+            'estado' => (!empty($_POST['estado'])) ? $this->helper->cleanInput($_POST['estado']) : 0,
+        );
+        $data = $this->model->frmAgregarNosotrosSeccion3($datos);
+        echo json_encode($data);
+    }
+
+    public function uploadImgFraseNostros() {
+        if (!empty($_POST)) {
+            $error = false;
+            $error = false;
+            $this->model->unlinkImagen('imagen_frase', 'aboutus_header', 1, NULL);
+            $absolutedir = dirname(__FILE__);
+            $dir = 'public/images/header/';
+            $serverdir = $dir;
+            $tmp = explode(',', $_POST['file']);
+            $file = base64_decode($tmp[1]);
+            $ext = explode('.', $_POST['filename']);
+            $extension = strtolower(end($ext));
+            $name = $_POST['name'];
+            $filename = $this->helper->cleanUrl($name);
+            $filename = $filename . '.' . $extension;
+            $handle = fopen($serverdir . $filename, 'w');
+            fwrite($handle, $file);
+            fclose($handle);
+            #############
+            #SE REDIMENSIONA LA IMAGEN
+            #############
+            # ruta de la imagen a redimensionar 
+            $imagen = $serverdir . $filename;
+            # ruta de la imagen final, si se pone el mismo nombre que la imagen, esta se sobreescribe 
+            $imagen_final = $filename;
+            $ancho = 1920;
+            $alto = 1080;
+            $this->helper->redimensionar($imagen, $imagen_final, $ancho, $alto, $serverdir);
+
+            #############
+            header('Content-type: application/json; charset=utf-8');
+            $data = array(
+                'imagen' => $filename
+            );
+            $response = $this->model->uploadImgFraseNostros($data);
+            echo json_encode($response);
+        }
+    }
+
 }

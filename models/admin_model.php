@@ -92,6 +92,34 @@ class Admin_Model extends Model {
                         . '<td>' . $estado . '</td>'
                         . '<td>' . $btnEditar . ' ' . $btnBorrar . '</td>';
                 break;
+            case 'fraseNosotros':
+                if ($sql[0]['estado'] == 1) {
+                    $estado = '<a class="pointer btnCambiarEstado" data-seccion="fraseNosotros" data-rowid="fraseNosotros_" data-tabla="aboutus_seccion2" data-campo="estado" data-id="' . $id . '" data-estado="1"><span class="label label-primary">Activo</span></a>';
+                } else {
+                    $estado = '<a class="pointer btnCambiarEstado" data-seccion="fraseNosotros" data-rowid="fraseNosotros_" data-tabla="aboutus_seccion2" data-campo="estado" data-id="' . $id . '" data-estado="0"><span class="label label-danger">Inactivo</span></a>';
+                }
+                $btnEditar = '<a class="editDTContenido pointer btn-xs" data-id="' . $id . '" data-url="modalEditarDTFraseNosotros"><i class="fa fa-edit"></i> Editar </a>';
+                $btnBorrar = '<a class="deletDTContenido pointer btn-xs txt-red" data-rowid="fraseNosotros_" data-id="' . $id . '" data-tabla="aboutus_seccion2"><i class="fa fa-trash-o"></i> Eliminar </a>';
+                $data = '<td>' . utf8_encode($sql[0]['orden']) . '</td>'
+                        . '<td>' . utf8_encode($sql[0]['es_frase']) . '</td>'
+                        . '<td>' . utf8_encode($sql[0]['en_frase']) . '</td>'
+                        . '<td>' . $estado . '</td>'
+                        . '<td>' . $btnEditar . ' ' . $btnBorrar . '</td>';
+                break;
+            case 'nosotrosSeccion3':
+                if ($sql[0]['estado'] == 1) {
+                    $estado = '<a class="pointer btnCambiarEstado" data-seccion="nosotrosSeccion3" data-rowid="nosotrosSeccion3_" data-tabla="aboutus_seccion3" data-campo="estado" data-id="' . $id . '" data-estado="1"><span class="label label-primary">Activo</span></a>';
+                } else {
+                    $estado = '<a class="pointer btnCambiarEstado" data-seccion="nosotrosSeccion3" data-rowid="nosotrosSeccion3_" data-tabla="aboutus_seccion3" data-campo="estado" data-id="' . $id . '" data-estado="0"><span class="label label-danger">Inactivo</span></a>';
+                }
+                $btnEditar = '<a class="editDTContenido pointer btn-xs" data-id="' . $id . '" data-url="modalEditarDTNosotrosSeccion3"><i class="fa fa-edit"></i> Editar </a>';
+                $btnBorrar = '<a class="deletDTContenido pointer btn-xs txt-red" data-rowid="nosotrosSeccion3_" data-id="' . $id . '" data-tabla="aboutus_seccion3"><i class="fa fa-trash-o"></i> Eliminar </a>';
+                $data = '<td>' . utf8_encode($sql[0]['orden']) . '</td>'
+                        . '<td>' . utf8_encode($sql[0]['es_titulo']) . '</td>'
+                        . '<td>' . utf8_encode($sql[0]['en_titulo']) . '</td>'
+                        . '<td>' . $estado . '</td>'
+                        . '<td>' . $btnEditar . ' ' . $btnBorrar . '</td>';
+                break;
         }
         return $data;
     }
@@ -154,6 +182,28 @@ class Admin_Model extends Model {
                         </div>';
                 break;
             case 'blog':
+                $content = '
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <h4>¿Estás seguro que deseas eliminar al siguiente usuario?</h4>
+                                <p>' . utf8_encode($sql[0]['es_titulo']) . ' - ' . utf8_encode($sql[0]['en_titulo']) . '</p>
+                                <p><a class="pointer btn btn-lg btn-danger btnEliminarContenido" data-tabla="' . $tabla . '" data-id="' . $id . '" data-rowid="' . $rowid . '"><i class="fa fa-trash-o" aria-hidden="true"></i> Eliminar</a></p>
+                            </div>
+                            </div>
+                        </div>';
+                break;
+            case 'aboutus_seccion2':
+                $content = '
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <h4>¿Estás seguro que deseas eliminar al siguiente usuario?</h4>
+                                <p>' . utf8_encode($sql[0]['es_frase']) . ' - ' . utf8_encode($sql[0]['en_frase']) . '</p>
+                                <p><a class="pointer btn btn-lg btn-danger btnEliminarContenido" data-tabla="' . $tabla . '" data-id="' . $id . '" data-rowid="' . $rowid . '"><i class="fa fa-trash-o" aria-hidden="true"></i> Eliminar</a></p>
+                            </div>
+                            </div>
+                        </div>';
+                break;
+            case 'aboutus_seccion3':
                 $content = '
                         <div class="row">
                             <div class="col-lg-12">
@@ -1566,6 +1616,497 @@ class Admin_Model extends Model {
             'content' => $contenido
         );
         return $datos;
+    }
+
+    public function datosHeaderNosotros() {
+        $sql = $this->db->select("SELECT
+                                        *
+                                FROM
+                                aboutus_header
+                                WHERE id =1;");
+        return $sql[0];
+    }
+
+    public function datosContenidoNosotros() {
+        $sql = $this->db->select("SELECT
+                                        *
+                                FROM
+                                aboutus_seccion1
+                                WHERE id =1;");
+        return $sql[0];
+    }
+
+    public function frmEditarAboutus_header($datos) {
+        $id = 1;
+        $update = array(
+            'es_titulo' => utf8_decode($datos['es_titulo']),
+            'en_titulo' => utf8_decode($datos['en_titulo']),
+            'es_frase' => utf8_decode($datos['es_frase']),
+            'en_frase' => utf8_decode($datos['en_frase'])
+        );
+        $row = $this->db->update('aboutus_header', $update, "id = $id");
+        $data = array(
+            'type' => 'success',
+            'content' => 'Se ha actualizado el contenido del encabezado'
+        );
+        return $data;
+    }
+
+    public function frmEditarAboutus_seccion1($datos) {
+        $id = 1;
+        $update = array(
+            'es_contenido' => utf8_decode($datos['es_contenido']),
+            'en_contenido' => utf8_decode($datos['en_contenido']),
+        );
+        $row = $this->db->update('aboutus_seccion1', $update, "id = $id");
+        $data = array(
+            'type' => 'success',
+            'content' => 'Se ha actualizado el contenido de la sección'
+        );
+        return $data;
+    }
+
+    public function frmEditarFraseNosotros($datos) {
+        $id = 1;
+        $update = array(
+            'es_frase' => utf8_decode($datos['es_frase']),
+            'en_frase' => utf8_decode($datos['en_frase']),
+            'orden' => utf8_decode($datos['orden']),
+            'estado' => utf8_decode($datos['estado']),
+        );
+        $row = $this->db->update('aboutus_seccion2', $update, "id = $id");
+        $data = array(
+            'type' => 'success',
+            'content' => $this->rowDataTable('fraseNosotros', 'aboutus_seccion2', $id),
+            'mensaje' => 'Se ha actualizado el contenido de las sección',
+            'id' => $id
+        );
+        return $data;
+    }
+
+    public function frmEditarNosotrosSeccion3($datos) {
+        $id = 1;
+        $update = array(
+            'es_titulo' => utf8_decode($datos['es_titulo']),
+            'es_contenido' => utf8_decode($datos['es_contenido']),
+            'en_titulo' => utf8_decode($datos['en_titulo']),
+            'en_contenido' => utf8_decode($datos['en_contenido']),
+            'orden' => utf8_decode($datos['orden']),
+            'estado' => utf8_decode($datos['estado']),
+        );
+        $row = $this->db->update('aboutus_seccion3', $update, "id = $id");
+        $data = array(
+            'type' => 'success',
+            'content' => $this->rowDataTable('nosotrosSeccion3', 'aboutus_seccion3', $id),
+            'mensaje' => 'Se ha actualizado el contenido de las sección',
+            'id' => $id
+        );
+        return $data;
+    }
+
+    public function uploadImgHeaderNosotros($datos) {
+        $id = 1;
+        $update = array(
+            'imagen_header' => $datos['imagen']
+        );
+        $this->db->update('aboutus_header', $update, "id = $id");
+        $contenido = '<img class="img-responsive" src="' . URL . 'public/images/header/' . $datos['imagen'] . '">';
+        $data = array(
+            "result" => true,
+            'content' => $contenido,
+        );
+        return $data;
+    }
+
+    public function listadoDTFraseNosotros() {
+        $sql = $this->db->select("SELECT * FROM aboutus_seccion2 ORDER BY orden ASC;");
+        $datos = array();
+        foreach ($sql as $item) {
+            $id = $item['id'];
+            if ($item['estado'] == 1) {
+                $estado = '<a class="pointer btnCambiarEstado" data-seccion="fraseNosotros" data-rowid="fraseNosotros_" data-tabla="aboutus_seccion2" data-campo="estado" data-id="' . $id . '" data-estado="1"><span class="label label-primary">Activo</span></a>';
+            } else {
+                $estado = '<a class="pointer btnCambiarEstado" data-seccion="fraseNosotros" data-rowid="fraseNosotros_" data-tabla="aboutus_seccion2" data-campo="estado" data-id="' . $id . '" data-estado="0"><span class="label label-danger">Inactivo</span></a>';
+            }
+            $btnEditar = '<a class="editDTContenido pointer btn-xs" data-id="' . $id . '" data-url="modalEditarDTFraseNosotros"><i class="fa fa-edit"></i> Editar </a>';
+            $btnBorrar = '<a class="deletDTContenido pointer btn-xs txt-red" data-rowid="fraseNosotros_" data-id="' . $id . '" data-tabla="aboutus_seccion2"><i class="fa fa-trash-o"></i> Eliminar </a>';
+            array_push($datos, array(
+                "DT_RowId" => "fraseNosotros_$id",
+                'orden' => $item['orden'],
+                'es_frase' => utf8_encode($item['es_frase']),
+                'en_frase' => utf8_encode($item['en_frase']),
+                'estado' => $estado,
+                'editar' => $btnEditar . ' ' . $btnBorrar
+            ));
+        }
+        $json = '{"data": ' . json_encode($datos) . '}';
+        return $json;
+    }
+
+    public function listadoDTNosotrosSeccion3() {
+        $sql = $this->db->select("SELECT * FROM aboutus_seccion3 ORDER BY orden ASC;");
+        $datos = array();
+        foreach ($sql as $item) {
+            $id = $item['id'];
+            if ($item['estado'] == 1) {
+                $estado = '<a class="pointer btnCambiarEstado" data-seccion="nosotrosSeccion3" data-rowid="nosotrosSeccion3_" data-tabla="aboutus_seccion3" data-campo="estado" data-id="' . $id . '" data-estado="1"><span class="label label-primary">Activo</span></a>';
+            } else {
+                $estado = '<a class="pointer btnCambiarEstado" data-seccion="nosotrosSeccion3" data-rowid="nosotrosSeccion3_" data-tabla="aboutus_seccion3" data-campo="estado" data-id="' . $id . '" data-estado="0"><span class="label label-danger">Inactivo</span></a>';
+            }
+            $btnEditar = '<a class="editDTContenido pointer btn-xs" data-id="' . $id . '" data-url="modalEditarDTNosotrosSeccion3"><i class="fa fa-edit"></i> Editar </a>';
+            $btnBorrar = '<a class="deletDTContenido pointer btn-xs txt-red" data-rowid="aboutus_seccion3" data-id="' . $id . '" data-tabla="aboutus_seccion3"><i class="fa fa-trash-o"></i> Eliminar </a>';
+            array_push($datos, array(
+                "DT_RowId" => "nosotrosSeccion3_$id",
+                'orden' => $item['orden'],
+                'es_titulo' => utf8_encode($item['es_titulo']),
+                'en_titulo' => utf8_encode($item['en_titulo']),
+                'estado' => $estado,
+                'editar' => $btnEditar . ' ' . $btnBorrar
+            ));
+        }
+        $json = '{"data": ' . json_encode($datos) . '}';
+        return $json;
+    }
+
+    public function modalEditarDTFraseNosotros($datos) {
+        $id = $datos['id'];
+        $sql = $this->db->select("SELECT * FROM `aboutus_seccion2` where id = $id");
+        $checked = "";
+        if ($sql[0]['estado'] == 1)
+            $checked = 'checked';
+        $modal = '<div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Modificar Datos</h3>
+                    </div>
+                    <div class="row">
+                        <form role="form" id="frmEditarFraseNosotros" method="POST">
+                            <input type="hidden" name="id" value="' . $id . '">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>ES Frase</label>
+                                    <input type="text" name="es_frase" class="form-control" value="' . utf8_encode($sql[0]['es_frase']) . '">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>EN Frase</label>
+                                    <input type="text" name="en_frase" class="form-control" value="' . utf8_encode($sql[0]['en_frase']) . '">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Orden</label>
+                                    <input type="text" name="orden" class="form-control" value="' . utf8_encode($sql[0]['orden']) . '">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="i-checks"><label> <input type="checkbox" name="estado" value="1" ' . $checked . '> <i></i> Mostrar </label></div>
+                            </div>
+                            <hr>
+                            <div class="clearfix"></div>
+                            <div class="btn-submit">
+                                <button type="submit" class="btn btn-block btn-primary btn-lg">Editar Item</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <script>
+                    $(document).ready(function () {
+                        $(".i-checks").iCheck({
+                            checkboxClass: "icheckbox_square-green"
+                        });
+                    });
+                </script>';
+        $data = array(
+            'titulo' => 'Editar Item de la Seccion 5',
+            'content' => $modal
+        );
+        return json_encode($data);
+    }
+
+    public function modalAgregarItemFraseNosotros() {
+        $modal = '<div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Agregar Datos</h3>
+                    </div>
+                    <div class="row">
+                        <form role="form" id="frmAgregarFraseNosotros" method="POST">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>ES Frase</label>
+                                    <input type="text" name="es_frase" class="form-control" value="">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>EN Frase</label>
+                                    <input type="text" name="en_frase" class="form-control" value="">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Orden</label>
+                                    <input type="text" name="orden" class="form-control" value="">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="i-checks"><label> <input type="checkbox" name="estado" value="1" > <i></i> Mostrar </label></div>
+                            </div>
+                            <hr>
+                            <div class="clearfix"></div>
+                            <div class="btn-submit">
+                                <button type="submit" class="btn btn-block btn-primary btn-lg">Agregar Item</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <script>
+                    $(document).ready(function () {
+                        $(".i-checks").iCheck({
+                            checkboxClass: "icheckbox_square-green"
+                        });
+                    });
+                </script>';
+        $data = array(
+            'titulo' => 'Agregar Item',
+            'content' => $modal
+        );
+        return $data;
+    }
+
+    public function modalAgregarItemNosotrosSeccion3() {
+        $modal = '<div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Agregar Datos</h3>
+                    </div>
+                    <div class="row">
+                        <form role="form" id="frmAgregarNosotrosSeccion3" method="POST">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Orden</label>
+                                        <input type="text" name="orden" class="form-control" placeholder="Orden" value="">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="i-checks"><label> <input type="checkbox" name="estado" value="1"> <i></i> Mostrar </label></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="tabs-container">
+                                        <ul class="nav nav-tabs">
+                                            <li class="active"><a data-toggle="tab" href="#tab-1Seccion3"> ES Contenido</a></li>
+                                            <li class=""><a data-toggle="tab" href="#tab-2Seccion3">EN Contenido</a></li>
+                                        </ul>
+                                        <div class="tab-content">
+                                            <div id="tab-1Seccion3" class="tab-pane active">
+                                                <div class="panel-body">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>Es Título</label>
+                                                            <input type="text" name="es_titulo" class="form-control" value="">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <div class="form-group">
+                                                            <label>Contenido</label>
+                                                            <textarea name="es_contenido" class="summernote"></textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div id="tab-2Seccion3" class="tab-pane">
+                                                <div class="panel-body">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>EN Título</label>
+                                                            <input type="text" name="en_titulo" class="form-control" value="">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <div class="form-group">
+                                                            <label>Contenido</label>
+                                                            <textarea name="en_contenido" class="summernote"></textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                                <button type="submit" class="btn btn-block btn-primary btn-lg">Agregar Contenido</button>
+                        </form>
+                    </div>
+                </div>
+                <script>
+                    $(document).ready(function () {
+                        $(".i-checks").iCheck({
+                            checkboxClass: "icheckbox_square-green"
+                        });
+                    });
+                </script>';
+        $data = array(
+            'titulo' => 'Agregar Item',
+            'content' => $modal
+        );
+        return $data;
+    }
+
+    public function frmAgregarFraseNosotros($datos) {
+        $this->db->insert('aboutus_seccion2', array(
+            'es_frase' => utf8_decode($datos['es_frase']),
+            'en_frase' => utf8_decode($datos['en_frase']),
+            'orden' => utf8_decode($datos['orden']),
+            'estado' => (!empty($datos['estado'])) ? $datos['estado'] : 0
+        ));
+        $id = $this->db->lastInsertId();
+        $sql = $this->db->select("select * from aboutus_seccion2 where id = $id");
+        if ($sql[0]['estado'] == 1) {
+            $estado = '<a class="pointer btnCambiarEstado" data-seccion="fraseNosotros" data-rowid="fraseNosotros_" data-tabla="aboutus_seccion2" data-campo="estado" data-id="' . $id . '" data-estado="1"><span class="label label-primary">Activo</span></a>';
+        } else {
+            $estado = '<a class="pointer btnCambiarEstado" data-seccion="fraseNosotros" data-rowid="fraseNosotros_" data-tabla="aboutus_seccion2" data-campo="estado" data-id="' . $id . '" data-estado="0"><span class="label label-danger">Inactivo</span></a>';
+        }
+        $btnEditar = '<a class="editDTContenido pointer btn-xs" data-id="' . $id . '" data-url="modalEditarDTFraseNosotros"><i class="fa fa-edit"></i> Editar </a>';
+        $btnBorrar = '<a class="deletDTContenido pointer btn-xs txt-red" data-rowid="fraseNosotros_" data-id="' . $id . '" data-tabla="aboutus_seccion2"><i class="fa fa-trash-o"></i> Eliminar </a>';
+        $data = array(
+            'type' => 'success',
+            'content' => '<tr id="fraseNosotros_' . $id . '" role="row" class="odd">'
+            . '<td class="sorting_1">' . utf8_encode($sql[0]['orden']) . '</td>'
+            . '<td>' . utf8_encode($sql[0]['es_frase']) . '</td>'
+            . '<td>' . utf8_encode($sql[0]['en_frase']) . '</td>'
+            . '<td>' . $estado . '</td>'
+            . '<td>' . $btnEditar . ' ' . $btnBorrar . '</td>'
+            . '</tr>',
+            'mensaje' => 'Se ha agregado correctamente el Item'
+        );
+        return $data;
+    }
+
+    public function frmAgregarNosotrosSeccion3($datos) {
+        $this->db->insert('aboutus_seccion3', array(
+            'es_titulo' => utf8_decode($datos['es_titulo']),
+            'es_contenido' => utf8_decode($datos['es_contenido']),
+            'en_titulo' => utf8_decode($datos['en_titulo']),
+            'en_contenido' => utf8_decode($datos['en_contenido']),
+            'orden' => utf8_decode($datos['orden']),
+            'estado' => (!empty($datos['estado'])) ? $datos['estado'] : 0
+        ));
+        $id = $this->db->lastInsertId();
+        $sql = $this->db->select("select * from aboutus_seccion3 where id = $id");
+        if ($sql[0]['estado'] == 1) {
+            $estado = '<a class="pointer btnCambiarEstado" data-seccion="nosotrosSeccion3" data-rowid="nosotrosSeccion3_" data-tabla="aboutus_seccion3" data-campo="estado" data-id="' . $id . '" data-estado="1"><span class="label label-primary">Activo</span></a>';
+        } else {
+            $estado = '<a class="pointer btnCambiarEstado" data-seccion="nosotrosSeccion3" data-rowid="nosotrosSeccion3_" data-tabla="aboutus_seccion3" data-campo="estado" data-id="' . $id . '" data-estado="0"><span class="label label-danger">Inactivo</span></a>';
+        }
+        $btnEditar = '<a class="editDTContenido pointer btn-xs" data-id="' . $id . '" data-url="modalEditarDTNosotrosSeccion3"><i class="fa fa-edit"></i> Editar </a>';
+        $btnBorrar = '<a class="deletDTContenido pointer btn-xs txt-red" data-rowid="nosotrosSeccion3_" data-id="' . $id . '" data-tabla="aboutus_seccion3"><i class="fa fa-trash-o"></i> Eliminar </a>';
+        $data = array(
+            'type' => 'success',
+            'content' => '<tr id="fraseNosotros_' . $id . '" role="row" class="odd">'
+            . '<td class="sorting_1">' . utf8_encode($sql[0]['orden']) . '</td>'
+            . '<td>' . utf8_encode($sql[0]['es_titulo']) . '</td>'
+            . '<td>' . utf8_encode($sql[0]['en_titulo']) . '</td>'
+            . '<td>' . $estado . '</td>'
+            . '<td>' . $btnEditar . ' ' . $btnBorrar . '</td>'
+            . '</tr>',
+            'mensaje' => 'Se ha agregado correctamente el Item'
+        );
+        return $data;
+    }
+
+    public function uploadImgFraseNostros($data) {
+        $id = 1;
+        $update = array(
+            'imagen_frase' => $data['imagen']
+        );
+        $this->db->update('aboutus_header', $update, "id = $id");
+        $contenido = '<img class="img-responsive" src="' . URL . 'public/images/header/' . $data['imagen'] . '">';
+        $datos = array(
+            "result" => TRUE,
+            'content' => $contenido
+        );
+        return $datos;
+    }
+
+    public function modalEditarDTNosotrosSeccion3($datos) {
+        $id = $datos['id'];
+        $sql = $this->db->select("select * from aboutus_seccion3 where id = $id");
+        $checked = "";
+        if ($sql[0]['estado'] == 1)
+            $checked = 'checked';
+        $modal = '<div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Modificar Datos</h3>
+                    </div>
+                    <div class="row">
+                        <form role="form" id="frmEditarNosotrosSeccion3" method="POST">
+                            <input type="hidden" name="id" value="' . $id . '">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="i-checks"><label> <input type="checkbox" name="estado" value="1" ' . $checked . '> <i></i> Mostrar </label></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Orden</label>
+                                        <input type="text" name="orden" class="form-control" placeholder="Orden" value="' . utf8_encode($sql[0]['orden']) . '">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="tabs-container">
+                                        <ul class="nav nav-tabs">
+                                            <li class="active"><a data-toggle="tab" href="#tab-1Seccion3"> ES Contenido</a></li>
+                                            <li class=""><a data-toggle="tab" href="#tab-2Seccion3">EN Contenido</a></li>
+                                        </ul>
+                                        <div class="tab-content">
+                                            <div id="tab-1Seccion3" class="tab-pane active">
+                                                <div class="panel-body">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>Es Título</label>
+                                                            <input type="text" name="es_titulo" class="form-control" value="' . utf8_encode($sql[0]['es_titulo']) . '">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <div class="form-group">
+                                                            <label>Contenido</label>
+                                                            <textarea name="es_contenido" class="summernote">' . utf8_encode($sql[0]['es_contenido']) . '</textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div id="tab-2Seccion3" class="tab-pane">
+                                                <div class="panel-body">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>EN Título</label>
+                                                            <input type="text" name="en_titulo" class="form-control" value="' . utf8_encode($sql[0]['en_titulo']) . '">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <div class="form-group">
+                                                            <label>Contenido</label>
+                                                            <textarea name="en_contenido" class="summernote">' . utf8_encode($sql[0]['en_contenido']) . '</textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                                <button type="submit" class="btn btn-block btn-primary btn-lg">Editar Contenido</button>
+                        </form>
+                    </div>
+                </div>';
+        $data = array(
+            'titulo' => 'Editar Sección',
+            'content' => $modal
+        );
+        return json_encode($data);
     }
 
 }
