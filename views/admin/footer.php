@@ -123,6 +123,15 @@ if (isset($this->js)) {
                                 }
                             });
                             break;
+                        case 'certificaciones':
+                            $(".html5fileupload.fileCertificacionesEditar").html5fileupload({
+                                data: {id: data.id},
+                                onAfterStartSuccess: function (response) {
+                                    $("#imgCertificaciones" + response.id).html(response.content);
+                                    $("#certificaciones_" + response.id).html(response.row);
+                                }
+                            });
+                            break;
                     }
                 });
             }

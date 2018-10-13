@@ -40,8 +40,6 @@
                 <!-- End Left, Dates -->
                 <!-- Post Inner -->
                 <div class="post-inner f-right">
-                    <!-- Media -->
-
                     <!-- Description -->
                     <div class="post-text light">
                         <?= utf8_encode($certificacion['contenido']); ?>

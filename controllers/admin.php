@@ -161,6 +161,23 @@ class Admin extends Controller {
             unset($_SESSION['message']);
     }
 
+    public function certifications() {
+        $this->view->helper = $this->helper;
+        $this->view->idioma = $this->idioma;
+        $this->view->title = 'Inicio';
+
+        $this->view->datosHeaderCertificaciones = $this->model->datosHeaderCertificaciones();
+
+        $this->view->public_css = array("css/plugins/dataTables/datatables.min.css", "css/plugins/html5fileupload/html5fileupload.css", "css/plugins/toastr/toastr.min.css", "css/plugins/iCheck/custom.css", "css/plugins/summernote/summernote.css");
+        $this->view->publicHeader_js = array("js/plugins/html5fileupload/html5fileupload.min.js");
+        $this->view->public_js = array("js/plugins/dataTables/datatables.min.js", "js/plugins/toastr/toastr.min.js", "js/plugins/summernote/summernote.min.js", "js/plugins/iCheck/icheck.min.js");
+        $this->view->render('admin/header');
+        $this->view->render('admin/certificaciones/index');
+        $this->view->render('admin/footer');
+        if (!empty($_SESSION['message']))
+            unset($_SESSION['message']);
+    }
+
     public function cambiarEstado() {
         header('Content-type: application/json; charset=utf-8');
         $datos = array(
@@ -659,6 +676,12 @@ class Admin extends Controller {
         echo $data;
     }
 
+    public function listadoDTCertificaciones() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = $this->model->listadoDTCertificaciones();
+        echo $data;
+    }
+
     public function listadoDTProductos() {
         header('Content-type: application/json; charset=utf-8');
 
@@ -682,6 +705,16 @@ class Admin extends Controller {
             'id' => $this->helper->cleanInput($_POST['id'])
         );
         $datos = $this->model->modalEditarDTSlider($data);
+        echo $datos;
+    }
+
+    public function modalEditarDTCertificaciones() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = array(
+            'lng' => $this->idioma,
+            'id' => $this->helper->cleanInput($_POST['id'])
+        );
+        $datos = $this->model->modalEditarDTCertificaciones($data);
         echo $datos;
     }
 
@@ -728,6 +761,25 @@ class Admin extends Controller {
         echo json_encode($data);
     }
 
+    public function frmEditarCertificaciones() {
+        header('Content-type: application/json; charset=utf-8');
+        $datos = array(
+            'id' => $this->helper->cleanInput($_POST['id']),
+            'orden' => (!empty($_POST['orden'])) ? $this->helper->cleanInput($_POST['orden']) : NULL,
+            'es_nombre' => (!empty($_POST['es_nombre'])) ? $this->helper->cleanInput($_POST['es_nombre']) : NULL,
+            'en_nombre' => (!empty($_POST['en_nombre'])) ? $this->helper->cleanInput($_POST['en_nombre']) : NULL,
+            'es_resumen' => (!empty($_POST['es_resumen'])) ? $this->helper->cleanInput($_POST['es_resumen']) : NULL,
+            'en_resumen' => (!empty($_POST['en_resumen'])) ? $this->helper->cleanInput($_POST['en_resumen']) : NULL,
+            'es_nombre_corto' => (!empty($_POST['es_nombre_corto'])) ? $this->helper->cleanInput($_POST['es_nombre_corto']) : NULL,
+            'en_nombre_corto' => (!empty($_POST['en_nombre_corto'])) ? $this->helper->cleanInput($_POST['en_nombre_corto']) : NULL,
+            'es_contenido' => (!empty($_POST['es_contenido'])) ? $_POST['es_contenido'] : NULL,
+            'en_contenido' => (!empty($_POST['en_contenido'])) ? $_POST['en_contenido'] : NULL,
+            'estado' => (!empty($_POST['estado'])) ? $this->helper->cleanInput($_POST['estado']) : 0,
+        );
+        $data = $this->model->frmEditarCertificaciones($datos);
+        echo json_encode($data);
+    }
+
     public function uploadImgSlider() {
         if (!empty($_POST)) {
             $idPost = $_POST['data']['id'];
@@ -759,6 +811,41 @@ class Admin extends Controller {
                 'imagen' => $filename
             );
             $response = $this->model->uploadImgSlider($data);
+            echo json_encode($response);
+        }
+    }
+
+    public function uploadImgCertificaciones() {
+        if (!empty($_POST)) {
+            $idPost = $_POST['data']['id'];
+            $this->model->unlinkImagen('imagen_certificacion', 'certificaciones', $idPost, 'certificaciones');
+            $error = false;
+            $absolutedir = dirname(__FILE__);
+            $dir = 'public/images/certificaciones/';
+            $serverdir = $dir;
+            $tmp = explode(',', $_POST['file']);
+            $file = base64_decode($tmp[1]);
+            $ext = explode('.', $_POST['filename']);
+            $extension = strtolower(end($ext));
+            $name = $idPost . '-' . $_POST['name'];
+            $filename = $this->helper->cleanUrl($name);
+            $filename = $filename . '.' . $extension;
+            $handle = fopen($serverdir . $filename, 'w');
+            fwrite($handle, $file);
+            fclose($handle);
+            #REDIMENSIONAR
+//            $imagen = $serverdir . $filename;
+//            $imagen_final = $filename;
+//            $ancho = 232;
+//            $alto = 232;
+//            $this->helper->redimensionar($imagen, $imagen_final, $ancho, $alto, $serverdir);
+            #############
+            header('Content-type: application/json; charset=utf-8');
+            $data = array(
+                'id' => $idPost,
+                'imagen' => $filename
+            );
+            $response = $this->model->uploadImgCertificaciones($data);
             echo json_encode($response);
         }
     }
@@ -838,6 +925,12 @@ class Admin extends Controller {
         $datos = $this->model->modalAgregarSlider($this->idioma);
         echo json_encode($datos);
     }
+    
+    public function modalAgregarCertificacion() {
+        header('Content-type: application/json; charset=utf-8');
+        $datos = $this->model->modalAgregarCertificacion($this->idioma);
+        echo json_encode($datos);
+    }
 
     public function modalAgregarProducto() {
         header('Content-type: application/json; charset=utf-8');
@@ -909,6 +1002,59 @@ class Admin extends Controller {
             ));
         }
         header('Location:' . URL . $this->idioma . '/admin/inicio/');
+    }
+
+    public function frmAgregarCertificacion() {
+        if (!empty($_POST)) {
+            $data = array(
+                'es_nombre' => (!empty($_POST['es_nombre'])) ? $this->helper->cleanInput($_POST['es_nombre']) : NULL,
+                'en_nombre' => (!empty($_POST['en_nombre'])) ? $this->helper->cleanInput($_POST['en_nombre']) : NULL,
+                'es_resumen' => (!empty($_POST['es_resumen'])) ? $this->helper->cleanInput($_POST['es_resumen']) : NULL,
+                'en_resumen' => (!empty($_POST['en_resumen'])) ? $this->helper->cleanInput($_POST['en_resumen']) : NULL,
+                'es_contenido' => (!empty($_POST['es_contenido'])) ? $_POST['es_contenido'] : NULL,
+                'en_contenido' => (!empty($_POST['en_contenido'])) ? $_POST['en_contenido'] : NULL,
+                'es_nombre_corto' => (!empty($_POST['es_nombre_corto'])) ? $this->helper->cleanInput($_POST['es_nombre_corto']) : NULL,
+                'en_nombre_corto' => (!empty($_POST['en_nombre_corto'])) ? $this->helper->cleanInput($_POST['en_nombre_corto']) : NULL,
+                'orden' => (!empty($_POST['orden'])) ? $this->helper->cleanInput($_POST['orden']) : NULL,
+                'estado' => (!empty($_POST['estado'])) ? $this->helper->cleanInput($_POST['estado']) : 0,
+            );
+            $idPost = $this->model->frmAgregarCertificacion($data);
+            #IMAGENES
+            if (!empty($_FILES['file_archivo']['name'])) {
+                $error = false;
+                $dir = 'public/images/certificaciones/';
+                $serverdir = $dir;
+                #IMAGENES
+                $newname = $idPost . '-' . $_FILES['file_archivo']['name'];
+                $fname = $this->helper->cleanUrl($newname);
+                $contents = file_get_contents($_FILES['file_archivo']['tmp_name']);
+
+                $handle = fopen($serverdir . $fname, 'w');
+                fwrite($handle, $contents);
+                fclose($handle);
+                #############
+                #SE REDIMENSIONA LA IMAGEN
+                #############
+                # ruta de la imagen a redimensionar 
+                $imagen = $serverdir . $fname;
+                # ruta de la imagen final, si se pone el mismo nombre que la imagen, esta se sobreescribe 
+//                $imagen_final = $fname;
+//                $ancho = 232;
+//                $alto = 232;
+//                $this->helper->redimensionar($imagen, $imagen_final, $ancho, $alto, $serverdir);
+                #############
+                $imagenes = array(
+                    'id' => $idPost,
+                    'imagenes' => $fname
+                );
+                $this->model->frmAddCertificacionImg($imagenes);
+            }
+            Session::set('message', array(
+                'type' => 'success',
+                'mensaje' => 'Se ha agregado correctamente la certificación'
+            ));
+        }
+        header('Location:' . URL . $this->idioma . '/admin/certifications/');
     }
 
     public function frmAgregarProducto() {
@@ -1064,6 +1210,19 @@ class Admin extends Controller {
         echo json_encode($datos);
     }
 
+    public function frmEditarCertificacionHeader() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = array(
+            'id' => $this->helper->cleanInput($_POST['id']),
+            'es_titulo' => (!empty($_POST['es_titulo'])) ? $this->helper->cleanInput($_POST['es_titulo']) : NULL,
+            'en_titulo' => (!empty($_POST['en_titulo'])) ? $this->helper->cleanInput($_POST['en_titulo']) : NULL,
+            'es_frase' => (!empty($_POST['es_frase'])) ? $this->helper->cleanInput($_POST['es_frase']) : NULL,
+            'en_frase' => (!empty($_POST['en_frase'])) ? $this->helper->cleanInput($_POST['en_frase']) : NULL,
+        );
+        $datos = $this->model->frmEditarCertificacionHeader($data);
+        echo json_encode($datos);
+    }
+
     public function frmEditarAboutus_seccion1() {
         header('Content-type: application/json; charset=utf-8');
         $data = array(
@@ -1132,6 +1291,39 @@ class Admin extends Controller {
                 'imagen' => $filename
             );
             $response = $this->model->uploadImgHeaderNosotros($data);
+            echo json_encode($response);
+        }
+    }
+
+    public function uploadImgHeaderCertificaciones() {
+        if (!empty($_POST)) {
+            $this->model->unlinkImagen('imagen_header', 'certificaciones_header', 1, NULL);
+            $error = false;
+            $absolutedir = dirname(__FILE__);
+            $dir = 'public/images/header/';
+            $serverdir = $dir;
+            $tmp = explode(',', $_POST['file']);
+            $file = base64_decode($tmp[1]);
+            $ext = explode('.', $_POST['filename']);
+            $extension = strtolower(end($ext));
+            $name = $_POST['name'];
+            $filename = $this->helper->cleanUrl($name);
+            $filename = $filename . '.' . $extension;
+            $handle = fopen($serverdir . $filename, 'w');
+            fwrite($handle, $file);
+            fclose($handle);
+            #REDIMENSIONAR
+            $imagen = $serverdir . $filename;
+            $imagen_final = $filename;
+            $ancho = 1920;
+            $alto = 1080;
+            $this->helper->redimensionar($imagen, $imagen_final, $ancho, $alto, $serverdir);
+            #############
+            header('Content-type: application/json; charset=utf-8');
+            $data = array(
+                'imagen' => $filename
+            );
+            $response = $this->model->uploadImgHeaderCertificaciones($data);
             echo json_encode($response);
         }
     }
