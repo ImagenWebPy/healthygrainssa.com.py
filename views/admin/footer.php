@@ -119,7 +119,7 @@ if (isset($this->js)) {
                                 data: {id: data.id},
                                 onAfterStartSuccess: function (response) {
                                     $("#imgSlider" + response.id).html(response.content);
-                                    $("#itemProductos_" + response.id).html(response.row);
+                                    $("#productos_" + response.id).html(response.row);
                                 }
                             });
                             break;
@@ -188,6 +188,9 @@ if (isset($this->js)) {
                     switch (pagina) {
                         case 'itemProductos':
                             $(".html5fileupload.fileAgregarItemProducto").html5fileupload();
+                            break;
+                        case 'productos':
+                            $(".html5fileupload.fileAgregarProducto").html5fileupload();
                             break;
                     }
                 });

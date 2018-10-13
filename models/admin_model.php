@@ -140,6 +140,27 @@ class Admin_Model extends Model {
                         . '<td>' . $estado . '</td>'
                         . '<td>' . $btnEditar . ' ' . $btnBorrar . '</td>';
                 break;
+            case 'productos':
+                if ($sql[0]['estado'] == 1) {
+                    $estado = '<a class="pointer btnCambiarEstado" data-seccion="productos" data-rowid="productos_" data-tabla="productos" data-campo="estado" data-id="' . $id . '" data-estado="1"><span class="label label-primary">Activo</span></a>';
+                } else {
+                    $estado = '<a class="pointer btnCambiarEstado" data-seccion="productos" data-rowid="productos_" data-tabla="productos" data-campo="estado" data-id="' . $id . '" data-estado="0"><span class="label label-danger">Inactivo</span></a>';
+                }
+                $btnListado = '<a class="mostrarListadoProductos pointer btn-xs" data-id="' . $id . '"><i class="fa fa-list"></i> Listado </a>';
+                $btnEditar = '<a class="editDTContenido pointer btn-xs" data-id="' . $id . '" data-url="modalEditarDTProducto" data-pagina="productos"><i class="fa fa-edit"></i> Editar </a>';
+                //$btnBorrar = '<a class="deletDTContenido pointer btn-xs txt-red" data-rowid="productos_" data-id="' . $id . '" data-tabla="productos"><i class="fa fa-trash-o"></i> Eliminar </a>';
+                if (!empty($sql[0]['imagen'])) {
+                    $img = '<img src="' . URL . 'public/images/productos/' . $sql[0]['imagen'] . '" style="width: 160px;">';
+                } else {
+                    $img = '-';
+                }
+                $data = '<td>' . utf8_encode($sql[0]['orden']) . '</td>'
+                        . '<td>' . $img . '</td>'
+                        . '<td>' . utf8_encode($sql[0]['es_producto']) . '</td>'
+                        . '<td>' . utf8_encode($sql[0]['en_producto']) . '</td>'
+                        . '<td>' . $estado . '</td>'
+                        . '<td>' . $btnListado . ' ' . $btnEditar . '</td>';
+                break;
         }
         return $data;
     }
@@ -1226,20 +1247,20 @@ class Admin_Model extends Model {
             }
             $btnListado = '<a class="mostrarListadoProductos pointer btn-xs" data-id="' . $id . '"><i class="fa fa-list"></i> Listado </a>';
             $btnEditar = '<a class="editDTContenido pointer btn-xs" data-id="' . $id . '" data-url="modalEditarDTProducto" data-pagina="productos"><i class="fa fa-edit"></i> Editar </a>';
-            $btnBorrar = '<a class="deletDTContenido pointer btn-xs txt-red" data-rowid="productos_" data-id="' . $id . '" data-tabla="productos"><i class="fa fa-trash-o"></i> Eliminar </a>';
+            //$btnBorrar = '<a class="deletDTContenido pointer btn-xs txt-red" data-rowid="productos_" data-id="' . $id . '" data-tabla="productos"><i class="fa fa-trash-o"></i> Eliminar </a>';
             if (!empty($item['imagen'])) {
                 $img = '<img src="' . URL . 'public/images/productos/' . $item['imagen'] . '" style="width: 160px;">';
             } else {
                 $img = '-';
             }
             array_push($datos, array(
-                "DT_RowId" => "slider_$id",
+                "DT_RowId" => "productos_$id",
                 'orden' => $item['orden'],
                 'imagen' => $img,
                 'es_producto' => utf8_encode($item['es_producto']),
                 'en_producto' => utf8_encode($item['en_producto']),
                 'estado' => $estado,
-                'editar' => $btnListado . ' ' . $btnEditar . ' ' . $btnBorrar
+                'editar' => $btnListado . ' ' . $btnEditar //. ' ' . $btnBorrar
             ));
         }
         $json = '{"data": ' . json_encode($datos) . '}';
@@ -1443,6 +1464,112 @@ class Admin_Model extends Model {
         return json_encode($data);
     }
 
+    public function modalEditarDTProducto($datos) {
+        $id = $datos['id'];
+        $lng = $datos['lng'];
+        $sql = $this->db->select("select * from productos where id = $id");
+        $checked = ($sql[0]['estado'] == 1) ? 'checked' : '';
+        $modal = '<div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Modificar Datos del Slider</h3>
+                    </div>
+                    <div class="row">
+                        <form role="form" id="frmEditarProducto" method="POST">
+                            <input type="hidden" name="id" value="' . $id . '">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Orden</label>
+                                        <input type="text" name="orden" class="form-control" placeholder="Orden" value="' . utf8_encode($sql[0]['orden']) . '">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="i-checks"><label> <input type="checkbox" name="estado" value="1" ' . $checked . '> <i></i> Mostrar </label></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="tabs-container">
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a data-toggle="tab" href="#producto-1"> ES Contenido</a></li>
+                                        <li class=""><a data-toggle="tab" href="#producto-2">EN Contenido</a></li>
+                                    </ul>
+                                    <div class="tab-content">
+                                        <div id="producto-1" class="tab-pane active">
+                                            <div class="panel-body">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Producto</label>
+                                                        <input type="text" name="es_producto" class="form-control" value="' . utf8_encode($sql[0]['es_producto']) . '">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="producto-2" class="tab-pane">
+                                            <div class="panel-body">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Producto</label>
+                                                        <input type="text" name="en_producto" class="form-control" value="' . utf8_encode($sql[0]['en_producto']) . '">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <button type="submit" class="btn btn-block btn-primary btn-lg">Editar Contenido</button>
+                                </div>
+                            </div>
+                        </form>
+                        <hr>
+                        <div class="col-md-12">
+                            <h3>Imagen</h3>
+                            <div class="alert alert-info alert-dismissable">
+                                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                Detalles de la imagen a subir:<br>
+                                -Formato: JPG,PNG (La imagen principal tiene que ser PNG transparente)<br>
+                                -Dimensión: Imagen Normal: 770 x 400px<br>
+                                -Tamaño: Hasta 2MB<br>
+                                <strong>Obs.: Las imagenes serán redimensionadas automaticamente a la dimensión especificada y se reducirá la calidad de la misma.</strong>
+                            </div>
+                            <div class="html5fileupload fileSliderHealthy" data-max-filesize="2048000" data-url="' . URL . $lng . '/admin/uploadImgProducto" data-valid-extensions="JPG,JPEG,jpg,png,jpeg,PNG" style="width: 100%;">
+                                <input type="file" name="file_archivo" />
+                            </div>
+                            <script>
+                                $(".html5fileupload.fileSliderHealthy").html5fileupload({
+                                    data: {id: ' . $id . '},
+                                    onAfterStartSuccess: function (response) {
+                                        $("#imgSlider" + response.id).html(response.content);
+                                        $("#productos_" + response.id).html(response.row);
+                                    }
+                                });
+                            </script>
+                        </div>
+                        <div class="col-md-12" id="imgSlider' . $id . '">';
+        if (!empty($sql[0]['imagen'])) {
+            $modal .= '     <img class="img-responsive" src="' . URL . 'public/images/productos/' . $sql[0]['imagen'] . '">';
+        }
+        $modal .= '     </div>
+                    </div>
+                </div>
+                <script>
+                    $(document).ready(function () {
+                        $(".i-checks").iCheck({
+                            checkboxClass: "icheckbox_square-green",
+                            radioClass: "iradio_square-green",
+                        });
+                    });
+                </script>';
+        $data = array(
+            'id' => $id,
+            'titulo' => 'Editar Producto',
+            'content' => $modal
+        );
+        return json_encode($data);
+    }
+
     public function modalEditarDTItemProducto($datos) {
         $id = $datos['id'];
         $lng = $datos['lng'];
@@ -1603,6 +1730,22 @@ class Admin_Model extends Model {
             "result" => true,
             'id' => $id,
             'content' => $contenido,
+        );
+        return $data;
+    }
+
+    public function uploadImgProducto($datos) {
+        $id = $datos['id'];
+        $update = array(
+            'imagen' => $datos['imagen']
+        );
+        $this->db->update('productos', $update, "id = $id");
+        $contenido = '<img class="img-responsive" src="' . URL . 'public/images/productos/' . $datos['imagen'] . '">';
+        $data = array(
+            "result" => true,
+            'id' => $id,
+            'content' => $contenido,
+            'row' => $this->rowDataTable('productos', 'productos', $id)
         );
         return $data;
     }
@@ -1769,6 +1912,92 @@ class Admin_Model extends Model {
         return $data;
     }
 
+    public function modalAgregarProducto($lng) {
+        $modal = '<div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Agregar Producto</h3>
+                    </div>
+                    <div class="row">
+                        <form action="' . URL . $lng . '/admin/frmAgregarProducto" method="POST" enctype="multipart/form-data">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Orden</label>
+                                        <input type="text" name="orden" class="form-control" placeholder="Orden" value="">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="i-checks"><label> <input type="checkbox" name="estado" value="1"> <i></i> Mostrar </label></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="tabs-container">
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a data-toggle="tab" href="#tab-1AgregarProducto"> ES Contenido</a></li>
+                                        <li class=""><a data-toggle="tab" href="#tab-2AgregarProducto">EN Contenido</a></li>
+                                    </ul>
+                                    <div class="tab-content">
+                                        <div id="tab-1AgregarProducto" class="tab-pane active">
+                                            <div class="panel-body">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Producto</label>
+                                                        <input type="text" name="es_producto" class="form-control" value="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="tab-2AgregarProducto" class="tab-pane">
+                                            <div class="panel-body">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Producto</label>
+                                                        <input type="text" name="en_producto" class="form-control" value="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h3>Imagen</h3>
+                                    <div class="alert alert-info alert-dismissable">
+                                        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                        Detalles de la imagen a subir:<br>
+                                        -Formato: JPG,PNG<br>
+                                        -Dimensión: Imagen Normal: 770 x 400px<br>
+                                        -Tamaño: Hasta 2MB<br>
+                                        <strong>Obs.: Las imagenes serán redimensionadas automaticamente a la dimensión especificada y se reducirá la calidad de la misma.</strong>
+                                    </div>
+                                    <div class="html5fileupload fileAgregarProducto" data-form="true" data-max-filesize="2048000"  data-valid-extensions="JPG,JPEG,jpg,png,jpeg,PNG" style="width: 100%;">
+                                        <input type="file" name="file_archivo" />
+                                    </div>
+                                    <script>
+                                        $(".html5fileupload.fileAgregarProducto").html5fileupload();
+                                    </script>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-block btn-primary btn-lg">Agregar Producto</button>
+                        </form>
+                    </div>
+                </div>
+                <script>
+                    $(document).ready(function () {
+                        $(".i-checks").iCheck({
+                            checkboxClass: "icheckbox_square-green",
+                            radioClass: "iradio_square-green",
+                        });
+                    });
+                </script>';
+        $data = array(
+            'titulo' => 'Agregar Slider',
+            'content' => $modal
+        );
+        return $data;
+    }
+
     public function modalAgregarItemProducto($datos) {
         $id_producto = $datos['id_producto'];
         $modal = '<div class="box box-primary">
@@ -1894,12 +2123,31 @@ class Admin_Model extends Model {
         return $id;
     }
 
+    public function frmAgregarProducto($datos) {
+        $this->db->insert('productos', array(
+            'es_producto' => utf8_decode($datos['es_producto']),
+            'en_producto' => utf8_decode($datos['en_producto']),
+            'orden' => utf8_decode($datos['orden']),
+            'estado' => utf8_decode($datos['estado'])
+        ));
+        $id = $this->db->lastInsertId();
+        return $id;
+    }
+
     public function frmAddSliderImg($imagenes) {
         $id = $imagenes['id'];
         $update = array(
             'imagen' => $imagenes['imagenes']
         );
         $this->db->update('slider', $update, "id = $id");
+    }
+
+    public function frmAddProductoImg($imagenes) {
+        $id = $imagenes['id'];
+        $update = array(
+            'imagen' => $imagenes['imagenes']
+        );
+        $this->db->update('productos', $update, "id = $id");
     }
 
     public function datosSeccion($seccion) {
@@ -1928,6 +2176,28 @@ class Admin_Model extends Model {
         return $data;
     }
 
+    public function frmEditarProducto($datos) {
+        $id = $datos['id'];
+        $estado = 1;
+        if (empty($datos['estado'])) {
+            $estado = 0;
+        }
+        $update = array(
+            'es_producto' => utf8_decode($datos['es_producto']),
+            'en_producto' => utf8_decode($datos['en_producto']),
+            'orden' => utf8_decode($datos['orden']),
+            'estado' => $estado
+        );
+        $this->db->update('productos', $update, "id = $id");
+        $data = array(
+            'type' => 'success',
+            'content' => $this->rowDataTable('productos', 'productos', $id),
+            'mensaje' => 'Se ha actualizado el contenido del producto',
+            'id' => $id
+        );
+        return $data;
+    }
+
     public function frmEditarProductoItem($datos) {
         $id = $datos['id'];
         $estado = 1;
@@ -1946,7 +2216,7 @@ class Admin_Model extends Model {
         $data = array(
             'type' => 'success',
             'content' => $this->rowDataTable('itemProductos', 'productos_items', $id),
-            'message' => 'Se ha actualizado el contenido de la sección 1',
+            'message' => 'Se ha actualizado el contenido del item',
             'id' => $id
         );
         return $data;

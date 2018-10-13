@@ -54,7 +54,7 @@
                     </div>
                     <div class="row">
                         <div class="col-xs-6 pull-right">
-                            <button type="button" class="btn btn-block btn-primary btnAgregarContenido" data-url="modalAgregarProducto">Agregar Producto</button>
+                            <button type="button" class="btn btn-block btn-primary btnAgregarContenido" data-url="modalAgregarProducto" data-pagina="productos">Agregar Producto</button>
                         </div>
                     </div>
                 </div>
@@ -94,6 +94,21 @@
             var id_producto = $(this).attr('data-id');
             var url = "<?= URL . $this->idioma ?>/admin/listadoProductos"; // the script where you handle the form input.
             $.redirect(url, {'id': id_producto});
+        });
+        $(document).on("submit", "#frmEditarProducto", function (e) {
+            e.preventDefault(); // avoid to execute the actual submit of the form.
+            var url = "<?= URL . $this->idioma ?>/admin/frmEditarProducto"; // the script where you handle the form input.
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: $("#frmEditarProducto").serialize(), // serializes the form's elements.
+                success: function (data)
+                {
+                    $("#productos_" + data.id).html(data.content);
+                    $(".genericModal").modal("toggle");
+                    mostrarToastr(data.mensaje);
+                }
+            });
         });
     });
 </script>
