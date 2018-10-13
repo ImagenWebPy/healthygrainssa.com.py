@@ -114,6 +114,15 @@ if (isset($this->js)) {
                                 }
                             });
                             break;
+                        case 'itemProductos':
+                            $(".html5fileupload.fileItemProducto").html5fileupload({
+                                data: {id: data.id},
+                                onAfterStartSuccess: function (response) {
+                                    $("#imgSlider" + response.id).html(response.content);
+                                    $("#itemProductos_" + response.id).html(response.row);
+                                }
+                            });
+                            break;
                     }
                 });
             }
@@ -143,10 +152,17 @@ if (isset($this->js)) {
             if (e.handled !== true) // This will prevent event triggering more then once
             {
                 var url = $(this).attr("data-url");
+                var pagina = $(this).attr("data-pagina");
+                console.log(pagina);
+                var id = 0;
+                if (url == 'modalAgregarItemProducto') {
+                    id = $(this).attr("data-id");
+                }
                 $.ajax({
                     url: "<?= URL . $this->idioma; ?>/admin/" + url,
                     type: "POST",
-                    dataType: "json"
+                    dataType: "json",
+                    data: {id: id},
                 }).done(function (data) {
                     $(".genericModal .modal-header").removeClass("modal-header").addClass("modal-header bg-primary");
                     $(".genericModal .modal-title").html(data.titulo);
@@ -169,6 +185,11 @@ if (isset($this->js)) {
                         autoclose: true,
                         format: "dd/mm/yyyy",
                     });
+                    switch (pagina) {
+                        case 'itemProductos':
+                            $(".html5fileupload.fileAgregarItemProducto").html5fileupload();
+                            break;
+                    }
                 });
             }
             e.handled = true;

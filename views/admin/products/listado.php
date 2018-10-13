@@ -57,7 +57,7 @@
                     </div>
                     <div class="row">
                         <div class="col-xs-6 pull-right">
-                            <button type="button" class="btn btn-block btn-primary btnAgregarContenido" data-url="modalAgregarItemProducto">Agregar Item Producto</button>
+                            <button type="button" class="btn btn-block btn-primary btnAgregarContenido" data-url="modalAgregarItemProducto" data-id="<?= $this->id_producto; ?>" data-pagina="itemProductos">Agregar Item Producto</button>
                         </div>
                     </div>
                 </div>
@@ -98,6 +98,56 @@
             "language": {
                 "url": "<?= URL ?>public/language/Spanish.json"
             }
+        });
+        $(document).on("submit", "#frmEditarProductoItem", function (e) {
+            e.preventDefault(); // avoid to execute the actual submit of the form.
+            var url = "<?= URL . $this->idioma ?>/admin/frmEditarProductoItem"; // the script where you handle the form input.
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: $("#frmEditarProductoItem").serialize(), // serializes the form's elements.
+                success: function (data)
+                {
+                    $("#itemProductos_" + data.id).html(data.content);
+                    $(".genericModal").modal("toggle");
+                    mostrarToastr(data.message);
+                }
+            });
+        });
+        $(document).on("submit", "#frmAgregarItemProducto", function (e) {
+            console.log('holaaa aaa');
+            if (e.handled !== true) // This will prevent event triggering more then once
+            {
+                e.preventDefault(); // avoid to execute the actual submit of the form.
+                var url = "<?= URL . $this->idioma ?>/admin/frmAgregarItemProducto"; // the script where you handle the form input.
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    dataType: 'json',
+                    data: new FormData(this),
+                    processData: false,
+                    contentType: false,
+                    success: function (data)
+                    {
+                        if (data.type == 'success') {
+                            var table = $(".dataTables-listadoProductos").DataTable();
+                            table.row.add({
+                                "orden": data.orden,
+                                "imagen": data.imagen,
+                                "es_nombre": data.es_nombre,
+                                "en_nombre": data.en_nombre,
+                                "estado": data.estado,
+                                "editar": data.editar
+                            }).node().id = 'itemProductos_' + data.id;
+                            table.draw();
+                            $(".genericModal").modal("toggle");
+                            mostrarToastr(data.mensaje);
+                        }
+
+                    }
+                });
+            }
+            e.handled = true;
         });
     });
 </script>

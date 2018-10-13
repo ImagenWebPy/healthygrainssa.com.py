@@ -685,6 +685,16 @@ class Admin extends Controller {
         echo $datos;
     }
 
+    public function modalEditarDTItemProducto() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = array(
+            'lng' => $this->idioma,
+            'id' => $this->helper->cleanInput($_POST['id'])
+        );
+        $datos = $this->model->modalEditarDTItemProducto($data);
+        echo $datos;
+    }
+
     public function frmEditarSlider() {
         header('Content-type: application/json; charset=utf-8');
         $datos = array(
@@ -743,9 +753,53 @@ class Admin extends Controller {
         }
     }
 
+    public function uploadImgItemProducto() {
+        if (!empty($_POST)) {
+            $idPost = $_POST['data']['id'];
+            $this->model->unlinkImagen('imagen', 'productos_items', $idPost, 'productos/items/');
+            $error = false;
+            $absolutedir = dirname(__FILE__);
+            $dir = 'public/images/productos/items/';
+            $serverdir = $dir;
+            $tmp = explode(',', $_POST['file']);
+            $file = base64_decode($tmp[1]);
+            $ext = explode('.', $_POST['filename']);
+            $extension = strtolower(end($ext));
+            $name = $idPost . '-' . $_POST['name'];
+            $filename = $this->helper->cleanUrl($name);
+            $filename = $filename . '.' . $extension;
+            $handle = fopen($serverdir . $filename, 'w');
+            fwrite($handle, $file);
+            fclose($handle);
+            #REDIMENSIONAR
+            $imagen = $serverdir . $filename;
+            $imagen_final = $filename;
+            $ancho = 770;
+            $alto = 400;
+            $this->helper->redimensionar($imagen, $imagen_final, $ancho, $alto, $serverdir);
+            #############
+            header('Content-type: application/json; charset=utf-8');
+            $data = array(
+                'id' => $idPost,
+                'imagen' => $filename
+            );
+            $response = $this->model->uploadImgItemProducto($data);
+            echo json_encode($response);
+        }
+    }
+
     public function modalAgregarSlider() {
         header('Content-type: application/json; charset=utf-8');
         $datos = $this->model->modalAgregarSlider($this->idioma);
+        echo json_encode($datos);
+    }
+
+    public function modalAgregarItemProducto() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = array(
+            'id_producto' => $this->helper->cleanInput($_POST['id'])
+        );
+        $datos = $this->model->modalAgregarItemProducto($data);
         echo json_encode($datos);
     }
 
@@ -817,6 +871,21 @@ class Admin extends Controller {
             'estado' => (!empty($_POST['estado'])) ? $this->helper->cleanInput($_POST['estado']) : 0
         );
         $datos = $this->model->frmEditarIndexSeccion1($data);
+        echo json_encode($datos);
+    }
+
+    public function frmEditarProductoItem() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = array(
+            'id' => $this->helper->cleanInput($_POST['id']),
+            'es_nombre' => (!empty($_POST['es_nombre'])) ? $this->helper->cleanInput($_POST['es_nombre']) : NULL,
+            'es_contenido' => (!empty($_POST['es_contenido'])) ? $_POST['es_contenido'] : NULL,
+            'en_nombre' => (!empty($_POST['en_nombre'])) ? $this->helper->cleanInput($_POST['en_nombre']) : NULL,
+            'en_contenido' => (!empty($_POST['en_contenido'])) ? $_POST['en_contenido'] : NULL,
+            'orden' => (!empty($_POST['orden'])) ? $_POST['orden'] : NULL,
+            'estado' => (!empty($_POST['estado'])) ? $this->helper->cleanInput($_POST['estado']) : 0
+        );
+        $datos = $this->model->frmEditarProductoItem($data);
         echo json_encode($datos);
     }
 
@@ -1061,6 +1130,57 @@ class Admin extends Controller {
             $response = $this->model->uploadImgFraseNostros($data);
             echo json_encode($response);
         }
+    }
+
+    public function frmAgregarItemProducto() {
+        $data = array();
+        if (!empty($_POST)) {
+            $insertar = array(
+                'id_producto' => (!empty($_POST['id_producto'])) ? $this->helper->cleanInput($_POST['id_producto']) : NULL,
+                'es_nombre' => (!empty($_POST['es_nombre'])) ? $this->helper->cleanInput($_POST['es_nombre']) : NULL,
+                'en_nombre' => (!empty($_POST['en_nombre'])) ? $this->helper->cleanInput($_POST['en_nombre']) : NULL,
+                'es_contenido' => (!empty($_POST['es_contenido'])) ? $this->helper->cleanInput($_POST['es_contenido']) : NULL,
+                'en_contenido' => (!empty($_POST['en_contenido'])) ? $this->helper->cleanInput($_POST['en_contenido']) : NULL,
+                'orden' => (!empty($_POST['orden'])) ? $this->helper->cleanInput($_POST['orden']) : 0,
+                'estado' => (!empty($_POST['estado'])) ? $_POST['estado'] : 0,
+            );
+            $idPost = $this->model->frmAgregarItemProducto($insertar);
+            #ARCHIVO
+            if (!empty($_FILES['file_archivo']['name'])) {
+                $error = false;
+                $dir = 'public/images/productos/items/';
+                $serverdir = $dir;
+                #PDF
+                $newname = $idPost . '-' . $_FILES['file_archivo']['name'];
+                $fname = $this->helper->cleanUrl($newname);
+                $contents = file_get_contents($_FILES['file_archivo']['tmp_name']);
+
+                $handle = fopen($serverdir . $fname, 'w');
+                fwrite($handle, $contents);
+                fclose($handle);
+                #############
+                $archivo = array(
+                    'id' => $idPost,
+                    'imagen' => $fname
+                );
+                $this->model->frmAddProductoItemImg($archivo);
+            }
+            #obtenemos los datos de la fila para mostrar
+            $mostrar = $this->model->datosProductosItems($idPost);
+            #retornamos los valores
+            $data = array(
+                'type' => 'success',
+                'id' => $idPost,
+                'orden' => $mostrar['orden'],
+                'imagen' => $mostrar['imagen'],
+                'es_nombre' => $mostrar['es_nombre'],
+                'en_nombre' => $mostrar['en_nombre'],
+                'estado' => $mostrar['estado'],
+                'editar' => $mostrar['editar'],
+                'mensaje' => $mostrar['mensaje']
+            );
+        }
+        echo json_encode($data);
     }
 
 }

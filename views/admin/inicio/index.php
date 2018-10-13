@@ -282,7 +282,7 @@
                 {
                     $("#slider_" + data.id).html(data.content);
                     $(".genericModal").modal("toggle");
-                    toastr.success(data.message);
+                    mostrarToastr(data.message);
                 }
             });
         });
