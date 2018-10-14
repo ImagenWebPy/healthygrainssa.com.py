@@ -227,6 +227,20 @@ class Admin extends Controller {
             unset($_SESSION['message']);
     }
 
+    public function menu() {
+        $this->view->helper = $this->helper;
+        $this->view->idioma = $this->idioma;
+        $this->view->title = 'Menú';
+        $this->view->getMenu = $this->model->getMenu();
+        $this->view->public_css = array("css/plugins/iCheck/custom.css", "css/plugins/summernote/summernote.css", "css/plugins/toastr/toastr.min.css");
+        $this->view->public_js = array("js/plugins/iCheck/icheck.min.js", "js/plugins/summernote/summernote.min.js", "js/plugins/toastr/toastr.min.js");
+        $this->view->render('admin/header');
+        $this->view->render('admin/menu/index');
+        $this->view->render('admin/footer');
+        if (!empty($_SESSION['message']))
+            unset($_SESSION['message']);
+    }
+
     public function cambiarEstado() {
         header('Content-type: application/json; charset=utf-8');
         $datos = array(
@@ -1979,6 +1993,89 @@ class Admin extends Controller {
             'en_boton' => (!empty($_POST['en_boton'])) ? $this->helper->cleanInput($_POST['en_boton']) : NULL,
         );
         $data = $this->model->frmContenidoContacto($datos);
+        echo json_encode($data);
+    }
+
+    public function metatags() {
+        $this->view->helper = $this->helper;
+        $this->view->idioma = $this->idioma;
+        $this->view->title = 'Meta Tags';
+        $this->view->public_css = array("css/plugins/dataTables/datatables.min.css", "css/plugins/iCheck/custom.css", "css/wfmi-style.css", "css/plugins/toastr/toastr.min.css");
+        $this->view->public_js = array("js/plugins/dataTables/datatables.min.js", "js/plugins/iCheck/icheck.min.js", "js/plugins/toastr/toastr.min.js");
+        $this->view->render('admin/header');
+        $this->view->render('admin/metatags/index');
+        $this->view->render('admin/footer');
+        if (!empty($_SESSION['message']))
+            unset($_SESSION['message']);
+    }
+
+    public function listadoDTMetas() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = $this->model->listadoDTMetas($_REQUEST);
+        echo $data;
+    }
+
+    public function modalEditarMetaTag() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = array(
+            'id' => $this->helper->cleanInput($_POST['id'])
+        );
+        $datos = $this->model->modalEditarMetaTag($data);
+        echo $datos;
+    }
+
+    public function frmEditarMetaTags() {
+        header('Content-type: application/json; charset=utf-8');
+        $datos = array(
+            'id' => $this->helper->cleanInput($_POST['id']),
+            'es_title' => (!empty($_POST['es_title'])) ? $this->helper->cleanInput($_POST['es_title']) : NULL,
+            'es_descripcion' => (!empty($_POST['es_descripcion'])) ? $this->helper->cleanInput($_POST['es_descripcion']) : NULL,
+            'es_keywords' => (!empty($_POST['es_keywords'])) ? $this->helper->cleanInput($_POST['es_keywords']) : NULL,
+            'en_title' => (!empty($_POST['en_title'])) ? $this->helper->cleanInput($_POST['en_title']) : NULL,
+            'en_descripcion' => (!empty($_POST['en_descripcion'])) ? $this->helper->cleanInput($_POST['en_descripcion']) : NULL,
+            'en_keywords' => (!empty($_POST['en_keywords'])) ? $this->helper->cleanInput($_POST['en_keywords']) : NULL
+        );
+        $data = $this->model->frmEditarMetaTags($datos);
+        echo json_encode($data);
+    }
+
+    public function modalEditarMenu() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = array(
+            'id' => $this->helper->cleanInput($_POST['id'])
+        );
+        $datos = $this->model->modalEditarMenu($data);
+        echo $datos;
+    }
+
+    public function frmEditarMenu() {
+        header('Content-type: application/json; charset=utf-8');
+        $datos = array(
+            'id' => $this->helper->cleanInput($_POST['id']),
+            'es_texto' => (!empty($_POST['es_texto'])) ? $this->helper->cleanInput($_POST['es_texto']) : NULL,
+            'en_texto' => (!empty($_POST['en_texto'])) ? $this->helper->cleanInput($_POST['en_texto']) : NULL,
+            'orden' => (!empty($_POST['orden'])) ? $this->helper->cleanInput($_POST['orden']) : NULL,
+            'estado' => (!empty($_POST['estado'])) ? $this->helper->cleanInput($_POST['estado']) : 0,
+        );
+        $data = $this->model->frmEditarMenu($datos);
+        echo json_encode($data);
+    }
+
+    public function modalAgregarMenu() {
+        header('Content-type: application/json; charset=utf-8');
+        $datos = $this->model->modalAgregarMenu($this->idioma);
+        echo json_encode($datos);
+    }
+
+    public function frmAgregarMenu() {
+        header('Content-type: application/json; charset=utf-8');
+        $datos = array(
+            'es_texto' => (!empty($_POST['es_texto'])) ? $this->helper->cleanInput($_POST['es_texto']) : NULL,
+            'en_texto' => (!empty($_POST['en_texto'])) ? $this->helper->cleanInput($_POST['en_texto']) : NULL,
+            'orden' => (!empty($_POST['orden'])) ? $this->helper->cleanInput($_POST['orden']) : NULL,
+            'estado' => (!empty($_POST['estado'])) ? $this->helper->cleanInput($_POST['estado']) : 0,
+        );
+        $data = $this->model->frmAgregarMenu($datos);
         echo json_encode($data);
     }
 
