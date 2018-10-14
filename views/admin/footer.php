@@ -132,6 +132,20 @@ if (isset($this->js)) {
                                 }
                             });
                             break;
+                        case 'servicios':
+                            $(".html5fileupload.fileImagenServiciosHeader").html5fileupload({
+                                data: {id: data.id},
+                                onAfterStartSuccess: function (response) {
+                                    $("#imgImagenCertificacionesHeader").html(response.content);
+                                }
+                            });
+                            $(".html5fileupload.fileImagenesServivios").html5fileupload({
+                                data: {id: data.id},
+                                onAfterStartSuccess: function (response) {
+                                    $("#imagenesServicios").append(response.content);
+                                }
+                            });
+                            break;
                     }
                 });
             }
@@ -200,6 +214,10 @@ if (isset($this->js)) {
                             break;
                         case 'productos':
                             $(".html5fileupload.fileAgregarProducto").html5fileupload();
+                            break;
+                        case 'servicios':
+                            $(".html5fileupload.fileImgCabecera").html5fileupload();
+                            $(".html5fileupload.files").html5fileupload();
                             break;
                     }
                 });

@@ -181,6 +181,20 @@ class Admin_Model extends Model {
                         . '<td>' . $estado . '</td>'
                         . '<td>' . $btnListado . ' ' . $btnEditar . '</td>';
                 break;
+            case 'servicios':
+                if ($sql[0]['estado'] == 1) {
+                    $estado = '<a class="pointer btnCambiarEstado" data-seccion="servicios" data-rowid="servicios_" data-tabla="servicios" data-campo="estado" data-id="' . $id . '" data-estado="1"><span class="label label-primary">Activo</span></a>';
+                } else {
+                    $estado = '<a class="pointer btnCambiarEstado" data-seccion="servicios" data-rowid="servicios_" data-tabla="servicios" data-campo="estado" data-id="' . $id . '" data-estado="0"><span class="label label-danger">Inactivo</span></a>';
+                }
+                $btnEditar = '<a class="editDTContenido pointer btn-xs" data-id="' . $id . '" data-url="modalEditarDTServicios" data-pagina="servicios"><i class="fa fa-edit"></i> Editar </a>';
+                $btnBorrar = '<a class="deletDTContenido pointer btn-xs txt-red" data-rowid="servicios_" data-id="' . $id . '" data-tabla="servicios"><i class="fa fa-trash-o"></i> Eliminar </a>';
+                $data = '<td>' . utf8_encode($sql[0]['orden']) . '</td>'
+                        . '<td>' . utf8_encode($sql[0]['es_servicio']) . '</td>'
+                        . '<td>' . utf8_encode($sql[0]['en_servicio']) . '</td>'
+                        . '<td>' . $estado . '</td>'
+                        . '<td>' . $btnEditar . ' ' . $btnBorrar . '</td>';
+                break;
         }
         return $data;
     }
@@ -195,7 +209,7 @@ class Admin_Model extends Model {
     public function unlinkImagen($campo, $tabla, $id, $carpeta = NULL) {
         $sql = $this->db->select("select $campo from $tabla where id = $id");
         $dir = (!empty($carpeta)) ? 'public/images/' . $carpeta . '/' : 'public/images/';
-        if (!empty($sql)) {
+        if (!empty($sql[0][$campo])) {
             if (file_exists($dir . $sql[0][$campo])) {
                 unlink($dir . $sql[0][$campo]);
             }
@@ -297,6 +311,17 @@ class Admin_Model extends Model {
                             </div>
                         </div>';
                 break;
+            case 'servicios':
+                $content = '
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <h4>¿Estás seguro que deseas eliminar el siguiente producto?</h4>
+                                <p>' . utf8_encode($sql[0]['es_servicio']) . ' - ' . utf8_encode($sql[0]['en_servicio']) . '</p>
+                                <p><a class="pointer btn btn-lg btn-danger btnEliminarContenido" data-tabla="' . $tabla . '" data-id="' . $id . '" data-rowid="' . $rowid . '"><i class="fa fa-trash-o" aria-hidden="true"></i> Eliminar</a></p>
+                            </div>
+                            </div>
+                        </div>';
+                break;
         }
         $data = array(
             'type' => 'success',
@@ -322,7 +347,7 @@ class Admin_Model extends Model {
                 }
                 break;
             case 'productos_items':
-                $sql = $this->db->select("select imagen from productos_items where id = 1");
+                $sql = $this->db->select("select imagen from productos_items where id = $id");
                 if (!empty($sql)) {
                     if (file_exists('public/images/productos/items/' . utf8_encode($sql[0]['imagen']))) {
                         unlink('public/images/productos/items/' . utf8_encode($sql[0]['imagen']));
@@ -330,18 +355,54 @@ class Admin_Model extends Model {
                 }
                 break;
             case 'certificaciones':
-                $sql = $this->db->select("select imagen_certificacion from certificaciones where id = 1");
+                $sql = $this->db->select("select imagen_certificacion from certificaciones where id = $id");
                 if (!empty($sql)) {
                     if (file_exists('public/images/certificaciones/' . utf8_encode($sql[0]['imagen_certificacion']))) {
                         unlink('public/images/certificaciones/' . utf8_encode($sql[0]['imagen_certificacion']));
                     }
                 }
                 break;
+            case 'servicios':
+                $sql = $this->db->select("select imagen_header from servicios_header where id_servicio = $id");
+                $sqlServicios = $this->db->select("select imagen from servicios_img where id_servicio = $id");
+                if (!empty($sql)) {
+                    if (file_exists('public/images/header/' . utf8_encode($sql[0]['imagen_header']))) {
+                        unlink('public/images/header/' . utf8_encode($sql[0]['imagen_header']));
+                    }
+                }
+                if (!empty($sqlServicios)) {
+                    foreach ($sqlServicios as $imagenes) {
+                        if (file_exists('public/images/servicios/' . utf8_encode($imagenes['imagen']))) {
+                            unlink('public/images/servicios/' . utf8_encode($imagenes['imagen']));
+                        }
+                    }
+                }
+                break;
         }
-        $sth = $this->db->prepare("delete from $tabla where id = :id");
-        $sth->execute(array(
-            ':id' => $id
-        ));
+        if ($tabla = 'servicios') {
+            $sth = $this->db->prepare("delete from $tabla where id = :id");
+            $sth->execute(array(
+                ':id' => $id
+            ));
+            $sth2 = $this->db->prepare("delete from servicios_header where id_servicio = :id_servicio");
+            $sth2->execute(array(
+                ':id_servicio' => $id
+            ));
+            $sth3 = $this->db->prepare("delete from servicios_contenido where id_servicio = :id_servicio");
+            $sth3->execute(array(
+                ':id_servicio' => $id
+            ));
+            $sth4 = $this->db->prepare("delete from servicios_img where id_servicio = :id_servicio");
+            $sth4->execute(array(
+                ':id_servicio' => $id
+            ));
+        } else {
+            $sth = $this->db->prepare("delete from $tabla where id = :id");
+            $sth->execute(array(
+                ':id' => $id
+            ));
+        }
+
         $data = array(
             'type' => 'success',
             'mensaje' => 'Se ha eliminado el contenido.'
@@ -1337,6 +1398,31 @@ class Admin_Model extends Model {
         return $json;
     }
 
+    public function listadoDTServicios() {
+        $sql = $this->db->select("SELECT * FROM servicios ORDER BY orden ASC;");
+        $datos = array();
+        foreach ($sql as $item) {
+            $id = $item['id'];
+            if ($item['estado'] == 1) {
+                $estado = '<a class="pointer btnCambiarEstado" data-seccion="servicios" data-rowid="servicios_" data-tabla="servicios" data-campo="estado" data-id="' . $id . '" data-estado="1"><span class="label label-primary">Activo</span></a>';
+            } else {
+                $estado = '<a class="pointer btnCambiarEstado" data-seccion="servicios" data-rowid="servicios_" data-tabla="servicios" data-campo="estado" data-id="' . $id . '" data-estado="0"><span class="label label-danger">Inactivo</span></a>';
+            }
+            $btnEditar = '<a class="editDTContenido pointer btn-xs" data-id="' . $id . '" data-url="modalEditarDTServicios" data-pagina="servicios"><i class="fa fa-edit"></i> Editar </a>';
+            $btnBorrar = '<a class="deletDTContenido pointer btn-xs txt-red" data-rowid="servicios_" data-id="' . $id . '" data-tabla="servicios"><i class="fa fa-trash-o"></i> Eliminar </a>';
+            array_push($datos, array(
+                "DT_RowId" => "servicios_$id",
+                'orden' => $item['orden'],
+                'es_servicio' => utf8_encode($item['es_servicio']),
+                'en_servicio' => utf8_encode($item['en_servicio']),
+                'estado' => $estado,
+                'editar' => $btnEditar . ' ' . $btnBorrar
+            ));
+        }
+        $json = '{"data": ' . json_encode($datos) . '}';
+        return $json;
+    }
+
     public function listadoDTItemProductos($datos) {
         $id_producto = $datos['id_producto'];
         $sql = $this->db->select("SELECT * FROM productos_items where id_producto = $id_producto ORDER BY orden ASC;");
@@ -1781,6 +1867,208 @@ class Admin_Model extends Model {
         return json_encode($data);
     }
 
+    public function modalEditarDTServicios($datos) {
+        $id = $datos['id'];
+        $lng = $datos['lng'];
+        $sqlHeader = $this->db->select("SELECT * FROM `servicios_header` where id_servicio = $id;");
+        $sqlContenido = $this->db->select("SELECT * FROM `servicios_contenido` where id_servicio = $id;");
+        $imagenes = $this->db->select("SELECT * FROM servicios_img WHERE id_servicio = $id;");
+        $modal = '<div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Modificar Datos del Servicio</h3>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="ibox float-e-margins">
+                                <div class="ibox-title">
+                                    <h5>Datos del Servicio</h5>
+                                    <div class="ibox-tools">
+                                        <a class="collapse-link">
+                                            <i class="fa fa-chevron-up"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="ibox-content">
+                                    <div class="row">
+                                        <form role="form" id="frmEditarServiciosHeader" method="POST">
+                                            <input type="hidden" name="id" value="' . utf8_encode($sqlHeader[0]['id']) . '">
+                                            <div class="col-lg-12">
+                                                <div class="tabs-container">
+                                                    <ul class="nav nav-tabs">
+                                                        <li class="active"><a data-toggle="tab" href="#seccionHeaderServicio-es">ES Contenido</a></li>
+                                                        <li class=""><a data-toggle="tab" href="#seccionHeaderServicio-en">EN Contenido</a></li>
+                                                    </ul>
+                                                    <div class="tab-content">
+                                                        <div id="seccionHeaderServicio-es" class="tab-pane active">
+                                                            <div class="panel-body">
+                                                                <div class="col-md-12">
+                                                                    <div class="form-group">
+                                                                        <label>Título Encabezado</label>
+                                                                        <input type="text" name="es_titulo" class="form-control" value="' . utf8_encode($sqlHeader[0]['es_titulo']) . '">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-12">
+                                                                    <div class="form-group">
+                                                                        <label>Frase Encabezado</label>
+                                                                        <input type="text" name="es_frase" class="form-control" value="' . utf8_encode($sqlHeader[0]['es_frase']) . '">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-12">
+                                                                    <div class="form-group">
+                                                                        <label>Contenido</label>
+                                                                        <textarea name="es_contenido" class="summernote">' . utf8_encode($sqlContenido[0]['es_contenido']) . '</textarea>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div id="seccionHeaderServicio-en" class="tab-pane">
+                                                            <div class="panel-body">
+                                                                <div class="col-md-12">
+                                                                    <div class="form-group">
+                                                                        <label>Título Encabezado</label>
+                                                                        <input type="text" name="en_titulo" class="form-control" value="' . utf8_encode($sqlHeader[0]['en_titulo']) . '">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-12">
+                                                                    <div class="form-group">
+                                                                        <label>Frase Encabezado</label>
+                                                                        <input type="text" name="en_frase" class="form-control" value="' . utf8_encode($sqlHeader[0]['en_frase']) . '">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-12">
+                                                                    <div class="form-group">
+                                                                        <label>Contenido</label>
+                                                                        <textarea name="en_contenido" class="summernote">' . utf8_encode($sqlContenido[0]['en_contenido']) . '</textarea>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <button type="submit" class="btn btn-block btn-primary btn-lg">Actualizar Contenido</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <div class="ibox float-e-margins">
+                                                <div class="ibox-title">
+                                                    <h5>Imagen de la Cabecera</h5>
+                                                    <div class="ibox-tools">
+                                                        <a class="collapse-link">
+                                                            <i class="fa fa-chevron-up"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                <div class="ibox-content">
+                                                    <div class="alert alert-info alert-dismissable">
+                                                        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                                        Detalles de la imagen a subir:<br>
+                                                        -Formato: JPG, PNG<br>
+                                                        -Dimensión Recomendada: 1920 x 1080px<br>
+                                                        -Tamaño: 2MB<br>
+                                                        <strong>Obs.: Las imagenes serán redimensionadas automaticamente a la dimensión especificada y se reducirá la calidad de la misma.</strong>
+                                                    </div>
+                                                    <div class="html5fileupload fileImagenServiciosHeader" data-max-filesize="2048000" data-url="' . URL . $lng . '/admin/uploadImgHeaderServicio" data-valid-extensions="JPG,JPEG,jpg,png,jpeg,PNG" style="width: 100%;">
+                                                        <input type="file" name="file_archivo" />
+                                                    </div>
+                                                    <script>
+                                                        $(".html5fileupload.fileImagenServiciosHeader").html5fileupload({
+                                                            data: {id: ' . $sqlHeader[0]['id'] . '},
+                                                            onAfterStartSuccess: function (response) {
+                                                                $("#imgImagenCertificacionesHeader").html(response.content);
+                                                            }
+                                                        });
+                                                    </script>
+                                                    <div class="row">
+                                                        <div class="col-md-12" id="imgImagenCertificacionesHeader">';
+        if (!empty($sqlHeader[0]['imagen_header'])) {
+            $modal .= '                                     <img class="img-responsive" src="' . URL . 'public/images/header/' . $sqlHeader[0]['imagen_header'] . '">';
+        }
+        $modal .= '                                     </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div><!-- /ROW-->
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <div class="ibox float-e-margins">
+                                                <div class="ibox-title">
+                                                    <h5>Imagenes del Servicio</h5>
+                                                    <div class="ibox-tools">
+                                                        <a class="collapse-link">
+                                                            <i class="fa fa-chevron-up"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                <div class="ibox-content">
+                                                    <div class="alert alert-info alert-dismissable">
+                                                        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                                        Detalles de la imagen a subir:<br>
+                                                        -Formato: JPG, PNG<br>
+                                                        -Dimensión Recomendada: 960 x 600px<br>
+                                                        -Tamaño: 2MB<br>
+                                                        <strong>Obs.: Las imagenes serán redimensionadas automaticamente a la dimensión especificada y se reducirá la calidad de la misma.</strong>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Agregar Imagen</label> <small>(Puede agregar varias imagenes)</small>
+                                                        <div class="html5fileupload fileImagenesServivios" data-multiple="true" data-url="' . URL . $lng . '/admin/uploadServiciosImagen" data-valid-extensions="JPG,JPEG,jpg,png,jpeg,PNG" style="width: 100%;">
+                                                            <input type="file" name="file_archivo[]" />
+                                                        </div>
+                                                    </div>
+                                                    <script>
+                                                        $(".html5fileupload.fileImagenesServivios").html5fileupload({
+                                                            data:{id:' . $id . '},
+                                                            onAfterStartSuccess: function(response) {
+                                                                $("#imagenesServicios").append(response.content);
+                                                            }
+                                                        });
+                                                    </script>
+                                                    <div class="row">
+                                                        <div class="col-md-12" id="imagenesServicios">';
+        foreach ($imagenes as $item) {
+            $idImg = $item['id'];
+            if ($item['estado'] == 1) {
+                $mostrar = '    <a class="pointer btnMostrarImg" id="mostrarImg' . $idImg . '" data-id="' . $idImg . '"><span class="label label-success">Visible</span></a>';
+            } else {
+                $mostrar = '    <a class="pointer btnMostrarImg" id="mostrarImg' . $idImg . '" data-id="' . $idImg . '"><span class="label label-danger">Oculta</span></a>';
+            }
+            $modal .= '         <div class="col-sm-3" id="imagenGaleria' . $idImg . '">
+                                    <img class="img-responsive" src="' . URL . 'public/images/servicios/' . utf8_encode($item['imagen']) . '" alt="Photo">
+                                    <p>' . $mostrar . ' | <a class="pointer btnEliminarImg" data-id="' . $idImg . '" id="eliminarImg' . $idImg . '"><span class="label label-danger">Eliminar</span></a></p>
+                                </div>
+                                <!-- /.col -->';
+        }
+        $modal .= '                                     </div><!-- /imagenesServicios -->
+                                                    </div>
+                                                </div><!-- /ibox-content-->
+                                            </div>
+                                        </div>
+                                    </div><!-- /ROW-->
+                                </div>
+                            </div>
+                        </div><!-- /COL-LG-12 ENCABEZADO-->
+                    </div><!--/ ROW --> 
+                </div>
+                <script>
+                    $(document).ready(function () {
+                        $(".i-checks").iCheck({
+                            checkboxClass: "icheckbox_square-green",
+                            radioClass: "iradio_square-green",
+                        });
+                    });
+                </script>';
+        $data = array(
+            'id' => $id,
+            'titulo' => 'Editar Servicio',
+            'content' => $modal
+        );
+        return json_encode($data);
+    }
+
     public function modalEditarDTItemProducto($datos) {
         $id = $datos['id'];
         $lng = $datos['lng'];
@@ -1954,6 +2242,27 @@ class Admin_Model extends Model {
         return $data;
     }
 
+    public function frmEditarServiciosHeader($datos) {
+        $id = $datos['id'];
+        $update = array(
+            'es_titulo' => utf8_decode($datos['es_titulo']),
+            'en_titulo' => utf8_decode($datos['en_titulo']),
+            'es_frase' => utf8_decode($datos['es_frase']),
+            'en_frase' => utf8_decode($datos['en_frase'])
+        );
+        $this->db->update('servicios_header', $update, "id = $id");
+        $updateContenido = array(
+            'es_contenido' => utf8_decode($datos['es_contenido']),
+            'en_contenido' => utf8_decode($datos['en_contenido']),
+        );
+        $this->db->update('servicios_contenido', $updateContenido, "id = $id");
+        $data = array(
+            'type' => 'success',
+            'mensaje' => 'Se han actualizado los datos del servicio.'
+        );
+        return $data;
+    }
+
     public function uploadImgSlider($datos) {
         $id = $datos['id'];
         $update = array(
@@ -2013,6 +2322,21 @@ class Admin_Model extends Model {
             'id' => $id,
             'content' => $contenido,
             'row' => $this->rowDataTable('itemProductos', 'productos_items', $id)
+        );
+        return $data;
+    }
+
+    public function uploadImgHeaderServicio($datos) {
+        $id = $datos['id'];
+        $update = array(
+            'imagen_header' => $datos['imagen']
+        );
+        $this->db->update('servicios_header', $update, "id = $id");
+        $contenido = '<img class="img-responsive" src="' . URL . 'public/images/header/' . $datos['imagen'] . '">';
+        $data = array(
+            "result" => true,
+            'id' => $id,
+            'content' => $contenido,
         );
         return $data;
     }
@@ -2530,7 +2854,7 @@ class Admin_Model extends Model {
         );
         $this->db->update('slider', $update, "id = $id");
     }
-   
+
     public function frmAddCertificacionImg($imagenes) {
         $id = $imagenes['id'];
         $update = array(
@@ -3227,6 +3551,255 @@ class Admin_Model extends Model {
     public function datosHeaderCertificaciones() {
         $sql = $this->db->select("select * from certificaciones_header where id = 1;");
         return $sql[0];
+    }
+
+    public function btnMostrarImg($data) {
+        $id = $data['id'];
+        #obtenemos el estado actual
+        $sql = $this->db->select("select estado from servicios_img where id = $id");
+        $estado = ($sql[0]['estado'] == 1) ? 0 : 1;
+        $update = array(
+            'estado' => $estado
+        );
+        $this->db->update('servicios_img', $update, "id = $id");
+        if ($estado == 1) {
+            $mostrar = '<span class="label label-success">Visible</span>';
+        } else {
+            $mostrar = '<span class="label label-danger">Oculta</span>';
+        }
+        $datos = array(
+            "result" => TRUE,
+            'id' => $id,
+            'content' => $mostrar
+        );
+        return $datos;
+    }
+
+    public function insertImagenServicios($datos) {
+        $this->db->insert('servicios_img', array(
+            'id_servicio' => utf8_decode($datos),
+        ));
+        $id = $this->db->lastInsertId();
+        return $id;
+    }
+
+    public function uploadServiciosImagen($data) {
+        $id = $data['id'];
+        $update = array(
+            'imagen' => $data['archivo']
+        );
+        $this->db->update('servicios_img', $update, "id = $id");
+        $sql = $this->db->select("select * from servicios_img where id = $id");
+        if ($sql[0]['estado'] == 1) {
+            $mostrar = '    <a class="pointer btnMostrarImg" id="mostrarImg' . $id . '" data-id="' . $id . '"><span class="label label-success">Visible</span></a>';
+        } else {
+            $mostrar = '    <a class="pointer btnMostrarImg" id="mostrarImg' . $id . '" data-id="' . $id . '"><span class="label label-danger">Oculta</span></a>';
+        }
+        $contenido = '         <div class="col-sm-3" id="imagenGaleria' . $id . '">
+                                    <img class="img-responsive" src="' . URL . 'public/images/servicios/' . utf8_encode($sql[0]['imagen']) . '" alt="Photo">
+                                    <p>' . $mostrar . ' | <a class="pointer btnEliminarImg" data-id="' . $id . '" id="eliminarImg' . $id . '"><span class="label label-danger">Eliminar</span></a></p>
+                                </div>';
+        $datos = array(
+            "result" => true,
+            'id' => $id,
+            'content' => $contenido
+        );
+        return $datos;
+    }
+
+    public function btnEliminarImg($data) {
+        $id = $data['id'];
+        $this->unlinkImagen('imagen', 'servicios_img', $id, 'servicios');
+        $sth = $this->db->prepare("delete from servicios_img where id = :id");
+        $sth->execute(array(
+            ':id' => $id
+        ));
+        $datos = array(
+            "result" => TRUE,
+            'id' => $id
+        );
+        return $datos;
+    }
+
+    public function modalAgregarServicios($datos) {
+        $lng = $datos;
+        $modal = '<div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Agregar Servicio</h3>
+                    </div>
+                    <div class="row">
+                        <form role="form" action="' . URL . $lng . '/admin/frmAgregarServicio" method="POST" enctype="multipart/form-data" method="POST">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Orden</label>
+                                        <input type="text" name="orden" class="form-control" placeholder="Orden" value="">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="i-checks"><label> <input type="checkbox" name="estado" value="1"> <i></i> Mostrar </label></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="tabs-container">
+                                        <ul class="nav nav-tabs">
+                                            <li class="active"><a data-toggle="tab" href="#tabServicioAgregar-1"> ES Contenido</a></li>
+                                            <li class=""><a data-toggle="tab" href="#tabServicioAgregar-2">EN Contenido</a></li>
+                                        </ul>
+                                        <div class="tab-content">
+                                            <div id="tabServicioAgregar-1" class="tab-pane active">
+                                                <div class="panel-body">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>Nombre Servicio</label>
+                                                            <input type="text" name="es_servicio" class="form-control" value="">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>Título Encabezado</label>
+                                                            <input type="text" name="es_titulo" class="form-control" value="">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>Frase Encabezado</label>
+                                                            <input type="text" name="es_frase" class="form-control" value="">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <div class="form-group">
+                                                            <label>Contenido</label>
+                                                            <textarea name="es_contenido" class="summernote"></textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div id="tabServicioAgregar-2" class="tab-pane">
+                                                <div class="panel-body">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>Nombre Servicio</label>
+                                                            <input type="text" name="en_servicio" class="form-control" value="">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>Título</label>
+                                                            <input type="text" name="en_titulo" class="form-control" value="">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>Frase</label>
+                                                            <input type="text" name="en_frase" class="form-control" value="">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <div class="form-group">
+                                                            <label>Contenido</label>
+                                                            <textarea name="en_contenido" class="summernote"></textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <h3>Imagen de la Cabecera</h3>
+                                    <div class="alert alert-info alert-dismissable">
+                                        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                        Detalles de la imagen a subir:<br>
+                                        -Formato: JPG, PNG<br>
+                                        -Dimensión: Hasta 1920 x 1080px<br>
+                                        -Tamaño: 2MB<br>
+                                        <strong>Obs.: Las imagenes serán redimensionadas automaticamente a la dimensión especificada y se reducirá la calidad de la misma.</strong>
+                                    </div>
+                                    <div class="html5fileupload fileImgCabecera" data-form="true" data-valid-extensions="JPG,JPEG,jpg,png,jpeg" style="width: 100%;">
+                                        <input type="file" name="file_archivo" />
+                                    </div>
+                                    <script>
+                                        $(".html5fileupload.fileImgCabecera").html5fileupload();
+                                    </script>
+                                </div>
+                                <div class="col-md-12">
+                                    <h3>Imagenes del Servicio</h3>
+                                    <div class="alert alert-info alert-dismissable">
+                                        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                        Detalles de la imagen a subir:<br>
+                                        -Formato: JPG, PNG<br>
+                                        -Dimensión: Hasta 960 x 600px<br>
+                                        -Tamaño: 2MB<br>
+                                        <strong>Obs.: Las imagenes serán redimensionadas automaticamente a la dimensión especificada y se reducirá la calidad de la misma.</strong>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Imagenes</label><small>(Puede agregar varias imagenes)</small>
+                                        <div class="html5fileupload files" data-form="true" data-multiple="true" data-valid-extensions="JPG,JPEG,jpg,png,jpeg,PNG" style="width: 100%;">
+                                            <input type="file" name="file_productos[]" />
+                                        </div>
+                                    </div>
+                                    <script>
+                                        $(".html5fileupload.files").html5fileupload();
+                                    </script>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <button type="submit" class="btn btn-block btn-primary btn-lg">Agregar Contenido</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>';
+        $data = array(
+            'titulo' => 'Agregar Servicio',
+            'content' => $modal
+        );
+        return $data;
+    }
+
+    public function frmAgregarServicio($datos) {
+        $this->db->insert('servicios', array(
+            'es_servicio' => utf8_decode($datos['es_servicio']),
+            'en_servicio' => utf8_decode($datos['en_servicio']),
+            'orden' => utf8_decode($datos['orden']),
+            'estado' => $datos['estado']
+        ));
+        $id = $this->db->lastInsertId();
+        $this->db->insert('servicios_header', array(
+            'id_servicio' => $id,
+            'es_titulo' => utf8_decode($datos['es_titulo']),
+            'en_titulo' => utf8_decode($datos['en_titulo']),
+            'es_frase' => utf8_decode($datos['es_frase']),
+            'en_frase' => utf8_decode($datos['en_frase']),
+        ));
+        $this->db->insert('servicios_contenido', array(
+            'id_servicio' => $id,
+            'es_contenido' => utf8_decode($datos['es_contenido']),
+            'en_contenido' => utf8_decode($datos['en_contenido']),
+        ));
+        return $id;
+    }
+
+    public function frmAddServicioImg($imagenes) {
+        $id = $imagenes['id'];
+        $update = array(
+            'imagen_header' => $imagenes['imagen_header']
+        );
+        $this->db->update('servicios_header', $update, "id_servicio = $id");
+    }
+
+    public function insertServicioImagen($imagenes) {
+        $id = $imagenes['id'];
+        $cantImagenes = count($imagenes['imagenes']) - 1;
+        for ($i = 0; $i <= $cantImagenes; $i ++) {
+            $imgPrincipal = ($i == 0) ? 1 : 0;
+            $this->db->insert('servicios_img', array(
+                'id_servicio' => $id,
+                'imagen' => $imagenes['imagenes'][$i],
+                'estado' => 1
+            ));
+        }
     }
 
 }
