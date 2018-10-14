@@ -108,6 +108,24 @@ class Admin extends Controller {
             unset($_SESSION['message']);
     }
 
+    public function retail() {
+        $this->view->helper = $this->helper;
+        $this->view->idioma = $this->idioma;
+        $this->view->title = 'Retail & Private Label';
+
+        $this->view->datosHeaderRetail = $this->model->datosHeaderRetail();
+        $this->view->datosContenidoRetail = $this->model->datosContenidoRetail();
+
+        $this->view->public_css = array("css/plugins/dataTables/datatables.min.css", "css/plugins/html5fileupload/html5fileupload.css", "css/plugins/toastr/toastr.min.css", "css/plugins/iCheck/custom.css", "css/plugins/summernote/summernote.css");
+        $this->view->publicHeader_js = array("js/plugins/html5fileupload/html5fileupload.min.js");
+        $this->view->public_js = array("js/plugins/dataTables/datatables.min.js", "js/plugins/toastr/toastr.min.js", "js/plugins/summernote/summernote.min.js", "js/plugins/iCheck/icheck.min.js");
+        $this->view->render('admin/header');
+        $this->view->render('admin/retail/index');
+        $this->view->render('admin/footer');
+        if (!empty($_SESSION['message']))
+            unset($_SESSION['message']);
+    }
+
     public function products() {
         $this->view->helper = $this->helper;
         $this->view->idioma = $this->idioma;
@@ -1290,6 +1308,19 @@ class Admin extends Controller {
         echo json_encode($datos);
     }
 
+    public function frmEditarRetailHeader() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = array(
+            'id' => $this->helper->cleanInput($_POST['id']),
+            'es_titulo' => (!empty($_POST['es_titulo'])) ? $this->helper->cleanInput($_POST['es_titulo']) : NULL,
+            'en_titulo' => (!empty($_POST['en_titulo'])) ? $this->helper->cleanInput($_POST['en_titulo']) : NULL,
+            'es_frase' => (!empty($_POST['es_frase'])) ? $this->helper->cleanInput($_POST['es_frase']) : NULL,
+            'en_frase' => (!empty($_POST['en_frase'])) ? $this->helper->cleanInput($_POST['en_frase']) : NULL,
+        );
+        $datos = $this->model->frmEditarRetailHeader($data);
+        echo json_encode($datos);
+    }
+
     public function frmEditarCertificacionHeader() {
         header('Content-type: application/json; charset=utf-8');
         $data = array(
@@ -1314,6 +1345,17 @@ class Admin extends Controller {
         echo json_encode($datos);
     }
 
+    public function frmEditarRetailSeccion1() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = array(
+            'id' => $this->helper->cleanInput($_POST['id']),
+            'es_contenido' => (!empty($_POST['es_contenido'])) ? $this->helper->cleanInput($_POST['es_contenido']) : NULL,
+            'en_contenido' => (!empty($_POST['en_contenido'])) ? $this->helper->cleanInput($_POST['en_contenido']) : NULL,
+        );
+        $datos = $this->model->frmEditarRetailSeccion1($data);
+        echo json_encode($datos);
+    }
+
     public function frmEditarFraseNosotros() {
         header('Content-type: application/json; charset=utf-8');
         $data = array(
@@ -1324,6 +1366,19 @@ class Admin extends Controller {
             'estado' => (!empty($_POST['estado'])) ? $this->helper->cleanInput($_POST['estado']) : 0,
         );
         $datos = $this->model->frmEditarFraseNosotros($data);
+        echo json_encode($datos);
+    }
+
+    public function frmEditarFraseRetail() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = array(
+            'id' => $this->helper->cleanInput($_POST['id']),
+            'es_frase' => (!empty($_POST['es_frase'])) ? $this->helper->cleanInput($_POST['es_frase']) : NULL,
+            'en_frase' => (!empty($_POST['en_frase'])) ? $this->helper->cleanInput($_POST['en_frase']) : NULL,
+            'orden' => (!empty($_POST['orden'])) ? $this->helper->cleanInput($_POST['orden']) : NULL,
+            'estado' => (!empty($_POST['estado'])) ? $this->helper->cleanInput($_POST['estado']) : 0,
+        );
+        $datos = $this->model->frmEditarFraseRetail($data);
         echo json_encode($datos);
     }
 
@@ -1344,7 +1399,7 @@ class Admin extends Controller {
 
     public function uploadImgHeaderNosotros() {
         if (!empty($_POST)) {
-            $this->model->unlinkImagen('imagen_header', 'aboutus_header', 1, NULL);
+            $this->model->unlinkImagen('imagen_header', 'aboutus_header', 1, 'header');
             $error = false;
             $absolutedir = dirname(__FILE__);
             $dir = 'public/images/header/';
@@ -1371,6 +1426,39 @@ class Admin extends Controller {
                 'imagen' => $filename
             );
             $response = $this->model->uploadImgHeaderNosotros($data);
+            echo json_encode($response);
+        }
+    }
+
+    public function uploadImgHeaderRetail() {
+        if (!empty($_POST)) {
+            $this->model->unlinkImagen('imagen_header', 'privatelabel_header', 1, 'header');
+            $error = false;
+            $absolutedir = dirname(__FILE__);
+            $dir = 'public/images/header/';
+            $serverdir = $dir;
+            $tmp = explode(',', $_POST['file']);
+            $file = base64_decode($tmp[1]);
+            $ext = explode('.', $_POST['filename']);
+            $extension = strtolower(end($ext));
+            $name = $_POST['name'];
+            $filename = $this->helper->cleanUrl($name);
+            $filename = $filename . '.' . $extension;
+            $handle = fopen($serverdir . $filename, 'w');
+            fwrite($handle, $file);
+            fclose($handle);
+            #REDIMENSIONAR
+            $imagen = $serverdir . $filename;
+            $imagen_final = $filename;
+            $ancho = 1920;
+            $alto = 1080;
+            $this->helper->redimensionar($imagen, $imagen_final, $ancho, $alto, $serverdir);
+            #############
+            header('Content-type: application/json; charset=utf-8');
+            $data = array(
+                'imagen' => $filename
+            );
+            $response = $this->model->uploadImgHeaderRetail($data);
             echo json_encode($response);
         }
     }
@@ -1414,6 +1502,12 @@ class Admin extends Controller {
         echo $data;
     }
 
+    public function listadoDTFraseRetail() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = $this->model->listadoDTFraseRetail();
+        echo $data;
+    }
+
     public function listadoDTNosotrosSeccion3() {
         header('Content-type: application/json; charset=utf-8');
         $data = $this->model->listadoDTNosotrosSeccion3();
@@ -1426,6 +1520,15 @@ class Admin extends Controller {
             'id' => $this->helper->cleanInput($_POST['id'])
         );
         $datos = $this->model->modalEditarDTFraseNosotros($data);
+        echo $datos;
+    }
+
+    public function modalEditarDTFraseRetail() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = array(
+            'id' => $this->helper->cleanInput($_POST['id'])
+        );
+        $datos = $this->model->modalEditarDTFraseRetail($data);
         echo $datos;
     }
 
@@ -1450,6 +1553,12 @@ class Admin extends Controller {
         echo json_encode($datos);
     }
 
+    public function modalAgregarItemFraseReatil() {
+        header('Content-type: application/json; charset=utf-8');
+        $datos = $this->model->modalAgregarItemFraseReatil();
+        echo json_encode($datos);
+    }
+
     public function frmAgregarFraseNosotros() {
         header('Content-type: application/json; charset=utf-8');
         $datos = array(
@@ -1459,6 +1568,18 @@ class Admin extends Controller {
             'estado' => (!empty($_POST['estado'])) ? $this->helper->cleanInput($_POST['estado']) : 0,
         );
         $data = $this->model->frmAgregarFraseNosotros($datos);
+        echo json_encode($data);
+    }
+
+    public function frmAgregarFraseRetail() {
+        header('Content-type: application/json; charset=utf-8');
+        $datos = array(
+            'es_frase' => (!empty($_POST['es_frase'])) ? $this->helper->cleanInput($_POST['es_frase']) : NULL,
+            'en_frase' => (!empty($_POST['en_frase'])) ? $this->helper->cleanInput($_POST['en_frase']) : NULL,
+            'orden' => (!empty($_POST['orden'])) ? $this->helper->cleanInput($_POST['orden']) : NULL,
+            'estado' => (!empty($_POST['estado'])) ? $this->helper->cleanInput($_POST['estado']) : 0,
+        );
+        $data = $this->model->frmAgregarFraseRetail($datos);
         echo json_encode($data);
     }
 
@@ -1480,7 +1601,7 @@ class Admin extends Controller {
         if (!empty($_POST)) {
             $error = false;
             $error = false;
-            $this->model->unlinkImagen('imagen_frase', 'aboutus_header', 1, NULL);
+            $this->model->unlinkImagen('imagen_frase', 'aboutus_header', 1, 'header');
             $absolutedir = dirname(__FILE__);
             $dir = 'public/images/header/';
             $serverdir = $dir;
@@ -1511,6 +1632,45 @@ class Admin extends Controller {
                 'imagen' => $filename
             );
             $response = $this->model->uploadImgFraseNostros($data);
+            echo json_encode($response);
+        }
+    }
+
+    public function uploadImgFraseRetail() {
+        if (!empty($_POST)) {
+            $error = false;
+            $error = false;
+            $this->model->unlinkImagen('imagen_frase', 'privatelabel_header', 1, NULL);
+            $absolutedir = dirname(__FILE__);
+            $dir = 'public/images/';
+            $serverdir = $dir;
+            $tmp = explode(',', $_POST['file']);
+            $file = base64_decode($tmp[1]);
+            $ext = explode('.', $_POST['filename']);
+            $extension = strtolower(end($ext));
+            $name = $_POST['name'];
+            $filename = $this->helper->cleanUrl($name);
+            $filename = $filename . '.' . $extension;
+            $handle = fopen($serverdir . $filename, 'w');
+            fwrite($handle, $file);
+            fclose($handle);
+            #############
+            #SE REDIMENSIONA LA IMAGEN
+            #############
+            # ruta de la imagen a redimensionar 
+            $imagen = $serverdir . $filename;
+            # ruta de la imagen final, si se pone el mismo nombre que la imagen, esta se sobreescribe 
+            $imagen_final = $filename;
+            $ancho = 1920;
+            $alto = 1080;
+            $this->helper->redimensionar($imagen, $imagen_final, $ancho, $alto, $serverdir);
+
+            #############
+            header('Content-type: application/json; charset=utf-8');
+            $data = array(
+                'imagen' => $filename
+            );
+            $response = $this->model->uploadImgFraseRetail($data);
             echo json_encode($response);
         }
     }

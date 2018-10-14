@@ -126,6 +126,20 @@ class Admin_Model extends Model {
                         . '<td>' . $estado . '</td>'
                         . '<td>' . $btnEditar . ' ' . $btnBorrar . '</td>';
                 break;
+            case 'fraseRetail':
+                if ($sql[0]['estado'] == 1) {
+                    $estado = '<a class="pointer btnCambiarEstado" data-seccion="fraseRetail" data-rowid="fraseRetail_" data-tabla="privatelabel_seccion2" data-campo="estado" data-id="' . $id . '" data-estado="1"><span class="label label-primary">Activo</span></a>';
+                } else {
+                    $estado = '<a class="pointer btnCambiarEstado" data-seccion="fraseRetail" data-rowid="fraseRetail_" data-tabla="privatelabel_seccion2" data-campo="estado" data-id="' . $id . '" data-estado="0"><span class="label label-danger">Inactivo</span></a>';
+                }
+                $btnEditar = '<a class="editDTContenido pointer btn-xs" data-id="' . $id . '" data-url="modalEditarDTFraseRetail"><i class="fa fa-edit"></i> Editar </a>';
+                $btnBorrar = '<a class="deletDTContenido pointer btn-xs txt-red" data-rowid="fraseRetail_" data-id="' . $id . '" data-tabla="privatelabel_seccion2"><i class="fa fa-trash-o"></i> Eliminar </a>';
+                $data = '<td>' . utf8_encode($sql[0]['orden']) . '</td>'
+                        . '<td>' . utf8_encode($sql[0]['es_frase']) . '</td>'
+                        . '<td>' . utf8_encode($sql[0]['en_frase']) . '</td>'
+                        . '<td>' . $estado . '</td>'
+                        . '<td>' . $btnEditar . ' ' . $btnBorrar . '</td>';
+                break;
             case 'nosotrosSeccion3':
                 if ($sql[0]['estado'] == 1) {
                     $estado = '<a class="pointer btnCambiarEstado" data-seccion="nosotrosSeccion3" data-rowid="nosotrosSeccion3_" data-tabla="aboutus_seccion3" data-campo="estado" data-id="' . $id . '" data-estado="1"><span class="label label-primary">Activo</span></a>';
@@ -322,6 +336,17 @@ class Admin_Model extends Model {
                             </div>
                         </div>';
                 break;
+            case 'privatelabel_seccion2':
+                $content = '
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <h4>¿Estás seguro que deseas eliminar el siguiente producto?</h4>
+                                <p>' . utf8_encode($sql[0]['es_frase']) . '</p>
+                                <p><a class="pointer btn btn-lg btn-danger btnEliminarContenido" data-tabla="' . $tabla . '" data-id="' . $id . '" data-rowid="' . $rowid . '"><i class="fa fa-trash-o" aria-hidden="true"></i> Eliminar</a></p>
+                            </div>
+                            </div>
+                        </div>';
+                break;
         }
         $data = array(
             'type' => 'success',
@@ -379,7 +404,7 @@ class Admin_Model extends Model {
                 }
                 break;
         }
-        if ($tabla = 'servicios') {
+        if ($tabla == 'servicios') {
             $sth = $this->db->prepare("delete from $tabla where id = :id");
             $sth->execute(array(
                 ':id' => $id
@@ -2987,11 +3012,29 @@ class Admin_Model extends Model {
         return $sql[0];
     }
 
+    public function datosHeaderRetail() {
+        $sql = $this->db->select("SELECT
+                                        *
+                                FROM
+                                privatelabel_header
+                                WHERE id =1;");
+        return $sql[0];
+    }
+
     public function datosContenidoNosotros() {
         $sql = $this->db->select("SELECT
                                         *
                                 FROM
                                 aboutus_seccion1
+                                WHERE id =1;");
+        return $sql[0];
+    }
+
+    public function datosContenidoRetail() {
+        $sql = $this->db->select("SELECT
+                                        *
+                                FROM
+                                privatelabel_seccion1
                                 WHERE id =1;");
         return $sql[0];
     }
@@ -3005,6 +3048,22 @@ class Admin_Model extends Model {
             'en_frase' => utf8_decode($datos['en_frase'])
         );
         $row = $this->db->update('aboutus_header', $update, "id = $id");
+        $data = array(
+            'type' => 'success',
+            'content' => 'Se ha actualizado el contenido del encabezado'
+        );
+        return $data;
+    }
+
+    public function frmEditarRetailHeader($datos) {
+        $id = 1;
+        $update = array(
+            'es_titulo' => utf8_decode($datos['es_titulo']),
+            'en_titulo' => utf8_decode($datos['en_titulo']),
+            'es_frase' => utf8_decode($datos['es_frase']),
+            'en_frase' => utf8_decode($datos['en_frase'])
+        );
+        $row = $this->db->update('privatelabel_header', $update, "id = $id");
         $data = array(
             'type' => 'success',
             'content' => 'Se ha actualizado el contenido del encabezado'
@@ -3042,8 +3101,22 @@ class Admin_Model extends Model {
         return $data;
     }
 
+    public function frmEditarRetailSeccion1($datos) {
+        $id = $datos['id'];
+        $update = array(
+            'es_contenido' => utf8_decode($datos['es_contenido']),
+            'en_contenido' => utf8_decode($datos['en_contenido']),
+        );
+        $row = $this->db->update('privatelabel_seccion1', $update, "id = $id");
+        $data = array(
+            'type' => 'success',
+            'content' => 'Se ha actualizado el contenido de la sección'
+        );
+        return $data;
+    }
+
     public function frmEditarFraseNosotros($datos) {
-        $id = 1;
+        $id = $datos['id'];
         $update = array(
             'es_frase' => utf8_decode($datos['es_frase']),
             'en_frase' => utf8_decode($datos['en_frase']),
@@ -3054,6 +3127,24 @@ class Admin_Model extends Model {
         $data = array(
             'type' => 'success',
             'content' => $this->rowDataTable('fraseNosotros', 'aboutus_seccion2', $id),
+            'mensaje' => 'Se ha actualizado el contenido de las sección',
+            'id' => $id
+        );
+        return $data;
+    }
+
+    public function frmEditarFraseRetail($datos) {
+        $id = $datos['id'];
+        $update = array(
+            'es_frase' => utf8_decode($datos['es_frase']),
+            'en_frase' => utf8_decode($datos['en_frase']),
+            'orden' => utf8_decode($datos['orden']),
+            'estado' => utf8_decode($datos['estado']),
+        );
+        $row = $this->db->update('privatelabel_seccion2', $update, "id = $id");
+        $data = array(
+            'type' => 'success',
+            'content' => $this->rowDataTable('fraseRetail', 'privatelabel_seccion2', $id),
             'mensaje' => 'Se ha actualizado el contenido de las sección',
             'id' => $id
         );
@@ -3094,6 +3185,20 @@ class Admin_Model extends Model {
         return $data;
     }
 
+    public function uploadImgHeaderRetail($datos) {
+        $id = 1;
+        $update = array(
+            'imagen_header' => $datos['imagen']
+        );
+        $this->db->update('privatelabel_header', $update, "id = $id");
+        $contenido = '<img class="img-responsive" src="' . URL . 'public/images/header/' . $datos['imagen'] . '">';
+        $data = array(
+            "result" => true,
+            'content' => $contenido,
+        );
+        return $data;
+    }
+
     public function uploadImgHeaderCertificaciones($datos) {
         $id = 1;
         $update = array(
@@ -3122,6 +3227,31 @@ class Admin_Model extends Model {
             $btnBorrar = '<a class="deletDTContenido pointer btn-xs txt-red" data-rowid="fraseNosotros_" data-id="' . $id . '" data-tabla="aboutus_seccion2"><i class="fa fa-trash-o"></i> Eliminar </a>';
             array_push($datos, array(
                 "DT_RowId" => "fraseNosotros_$id",
+                'orden' => $item['orden'],
+                'es_frase' => utf8_encode($item['es_frase']),
+                'en_frase' => utf8_encode($item['en_frase']),
+                'estado' => $estado,
+                'editar' => $btnEditar . ' ' . $btnBorrar
+            ));
+        }
+        $json = '{"data": ' . json_encode($datos) . '}';
+        return $json;
+    }
+
+    public function listadoDTFraseRetail() {
+        $sql = $this->db->select("SELECT * FROM privatelabel_seccion2 ORDER BY orden ASC;");
+        $datos = array();
+        foreach ($sql as $item) {
+            $id = $item['id'];
+            if ($item['estado'] == 1) {
+                $estado = '<a class="pointer btnCambiarEstado" data-seccion="fraseRetail" data-rowid="fraseRetail_" data-tabla="privatelabel_seccion2" data-campo="estado" data-id="' . $id . '" data-estado="1"><span class="label label-primary">Activo</span></a>';
+            } else {
+                $estado = '<a class="pointer btnCambiarEstado" data-seccion="fraseRetail" data-rowid="fraseRetail_" data-tabla="privatelabel_seccion2" data-campo="estado" data-id="' . $id . '" data-estado="0"><span class="label label-danger">Inactivo</span></a>';
+            }
+            $btnEditar = '<a class="editDTContenido pointer btn-xs" data-id="' . $id . '" data-url="modalEditarDTFraseRetail"><i class="fa fa-edit"></i> Editar </a>';
+            $btnBorrar = '<a class="deletDTContenido pointer btn-xs txt-red" data-rowid="fraseRetail_" data-id="' . $id . '" data-tabla="privatelabel_seccion2"><i class="fa fa-trash-o"></i> Eliminar </a>';
+            array_push($datos, array(
+                "DT_RowId" => "fraseRetail_$id",
                 'orden' => $item['orden'],
                 'es_frase' => utf8_encode($item['es_frase']),
                 'en_frase' => utf8_encode($item['en_frase']),
@@ -3208,7 +3338,63 @@ class Admin_Model extends Model {
                     });
                 </script>';
         $data = array(
-            'titulo' => 'Editar Item de la Seccion 5',
+            'titulo' => 'Editar Item de la Seccion',
+            'content' => $modal
+        );
+        return json_encode($data);
+    }
+
+    public function modalEditarDTFraseRetail($datos) {
+        $id = $datos['id'];
+        $sql = $this->db->select("SELECT * FROM `privatelabel_seccion2` where id = $id");
+        $checked = "";
+        if ($sql[0]['estado'] == 1)
+            $checked = 'checked';
+        $modal = '<div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Modificar Datos</h3>
+                    </div>
+                    <div class="row">
+                        <form role="form" id="frmEditarFraseRetail" method="POST">
+                            <input type="hidden" name="id" value="' . $id . '">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>ES Frase</label>
+                                    <input type="text" name="es_frase" class="form-control" value="' . utf8_encode($sql[0]['es_frase']) . '">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>EN Frase</label>
+                                    <input type="text" name="en_frase" class="form-control" value="' . utf8_encode($sql[0]['en_frase']) . '">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Orden</label>
+                                    <input type="text" name="orden" class="form-control" value="' . utf8_encode($sql[0]['orden']) . '">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="i-checks"><label> <input type="checkbox" name="estado" value="1" ' . $checked . '> <i></i> Mostrar </label></div>
+                            </div>
+                            <hr>
+                            <div class="clearfix"></div>
+                            <div class="btn-submit">
+                                <button type="submit" class="btn btn-block btn-primary btn-lg">Editar Item</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <script>
+                    $(document).ready(function () {
+                        $(".i-checks").iCheck({
+                            checkboxClass: "icheckbox_square-green"
+                        });
+                    });
+                </script>';
+        $data = array(
+            'titulo' => 'Editar Item de la Seccion',
             'content' => $modal
         );
         return json_encode($data);
@@ -3221,6 +3407,56 @@ class Admin_Model extends Model {
                     </div>
                     <div class="row">
                         <form role="form" id="frmAgregarFraseNosotros" method="POST">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>ES Frase</label>
+                                    <input type="text" name="es_frase" class="form-control" value="">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>EN Frase</label>
+                                    <input type="text" name="en_frase" class="form-control" value="">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Orden</label>
+                                    <input type="text" name="orden" class="form-control" value="">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="i-checks"><label> <input type="checkbox" name="estado" value="1" > <i></i> Mostrar </label></div>
+                            </div>
+                            <hr>
+                            <div class="clearfix"></div>
+                            <div class="btn-submit">
+                                <button type="submit" class="btn btn-block btn-primary btn-lg">Agregar Item</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <script>
+                    $(document).ready(function () {
+                        $(".i-checks").iCheck({
+                            checkboxClass: "icheckbox_square-green"
+                        });
+                    });
+                </script>';
+        $data = array(
+            'titulo' => 'Agregar Item',
+            'content' => $modal
+        );
+        return $data;
+    }
+
+    public function modalAgregarItemFraseReatil() {
+        $modal = '<div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Agregar Datos</h3>
+                    </div>
+                    <div class="row">
+                        <form role="form" id="frmAgregarFraseRetail" method="POST">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>ES Frase</label>
@@ -3374,6 +3610,36 @@ class Admin_Model extends Model {
         return $data;
     }
 
+    public function frmAgregarFraseRetail($datos) {
+        $this->db->insert('privatelabel_seccion2', array(
+            'es_frase' => utf8_decode($datos['es_frase']),
+            'en_frase' => utf8_decode($datos['en_frase']),
+            'orden' => utf8_decode($datos['orden']),
+            'estado' => (!empty($datos['estado'])) ? $datos['estado'] : 0
+        ));
+        $id = $this->db->lastInsertId();
+        $sql = $this->db->select("select * from privatelabel_seccion2 where id = $id");
+        if ($sql[0]['estado'] == 1) {
+            $estado = '<a class="pointer btnCambiarEstado" data-seccion="fraseRetail" data-rowid="fraseRetail_" data-tabla="privatelabel_seccion2" data-campo="estado" data-id="' . $id . '" data-estado="1"><span class="label label-primary">Activo</span></a>';
+        } else {
+            $estado = '<a class="pointer btnCambiarEstado" data-seccion="fraseRetail" data-rowid="fraseRetail_" data-tabla="privatelabel_seccion2" data-campo="estado" data-id="' . $id . '" data-estado="0"><span class="label label-danger">Inactivo</span></a>';
+        }
+        $btnEditar = '<a class="editDTContenido pointer btn-xs" data-id="' . $id . '" data-url="modalEditarDTFraseRetail"><i class="fa fa-edit"></i> Editar </a>';
+        $btnBorrar = '<a class="deletDTContenido pointer btn-xs txt-red" data-rowid="fraseRetail_" data-id="' . $id . '" data-tabla="privatelabel_seccion2"><i class="fa fa-trash-o"></i> Eliminar </a>';
+        $data = array(
+            'type' => 'success',
+            'content' => '<tr id="fraseRetail_' . $id . '" role="row" class="odd">'
+            . '<td>' . utf8_encode($sql[0]['orden']) . '</td>'
+            . '<td>' . utf8_encode($sql[0]['es_frase']) . '</td>'
+            . '<td>' . utf8_encode($sql[0]['en_frase']) . '</td>'
+            . '<td>' . $estado . '</td>'
+            . '<td>' . $btnEditar . ' ' . $btnBorrar . '</td>'
+            . '</tr>',
+            'mensaje' => 'Se ha agregado correctamente el Item'
+        );
+        return $data;
+    }
+
     public function frmAgregarNosotrosSeccion3($datos) {
         $this->db->insert('aboutus_seccion3', array(
             'es_titulo' => utf8_decode($datos['es_titulo']),
@@ -3413,6 +3679,20 @@ class Admin_Model extends Model {
         );
         $this->db->update('aboutus_header', $update, "id = $id");
         $contenido = '<img class="img-responsive" src="' . URL . 'public/images/header/' . $data['imagen'] . '">';
+        $datos = array(
+            "result" => TRUE,
+            'content' => $contenido
+        );
+        return $datos;
+    }
+
+    public function uploadImgFraseRetail($data) {
+        $id = 1;
+        $update = array(
+            'imagen_frase' => $data['imagen']
+        );
+        $this->db->update('privatelabel_header', $update, "id = $id");
+        $contenido = '<img class="img-responsive" src="' . URL . 'public/images/' . $data['imagen'] . '">';
         $datos = array(
             "result" => TRUE,
             'content' => $contenido
