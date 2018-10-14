@@ -176,6 +176,22 @@ class Admin extends Controller {
             unset($_SESSION['message']);
     }
 
+    public function contacto() {
+        $this->view->helper = $this->helper;
+        $this->view->idioma = $this->idioma;
+        $this->view->title = 'Contacto';
+        $this->view->datosContactoHeader = $this->model->datosContactoHeader();
+        $this->view->datosContacto = $this->model->datosContacto();
+        $this->view->public_css = array("css/plugins/dataTables/datatables.min.css", "css/plugins/html5fileupload/html5fileupload.css", "css/plugins/toastr/toastr.min.css");
+        $this->view->publicHeader_js = array("js/plugins/html5fileupload/html5fileupload.min.js");
+        $this->view->public_js = array("js/plugins/dataTables/datatables.min.js", "js/plugins/toastr/toastr.min.js");
+        $this->view->render('admin/header');
+        $this->view->render('admin/contacto/index');
+        $this->view->render('admin/footer');
+        if (!empty($_SESSION['message']))
+            unset($_SESSION['message']);
+    }
+
     public function inicio() {
         $this->view->helper = $this->helper;
         $this->view->idioma = $this->idioma;
@@ -1308,6 +1324,19 @@ class Admin extends Controller {
         echo json_encode($datos);
     }
 
+    public function frmEditarContacto_header() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = array(
+            'id' => $this->helper->cleanInput($_POST['id']),
+            'es_titulo' => (!empty($_POST['es_titulo'])) ? $this->helper->cleanInput($_POST['es_titulo']) : NULL,
+            'en_titulo' => (!empty($_POST['en_titulo'])) ? $this->helper->cleanInput($_POST['en_titulo']) : NULL,
+            'es_frase' => (!empty($_POST['es_frase'])) ? $this->helper->cleanInput($_POST['es_frase']) : NULL,
+            'en_frase' => (!empty($_POST['en_frase'])) ? $this->helper->cleanInput($_POST['en_frase']) : NULL,
+        );
+        $datos = $this->model->frmEditarContacto_header($data);
+        echo json_encode($datos);
+    }
+
     public function frmEditarRetailHeader() {
         header('Content-type: application/json; charset=utf-8');
         $data = array(
@@ -1426,6 +1455,39 @@ class Admin extends Controller {
                 'imagen' => $filename
             );
             $response = $this->model->uploadImgHeaderNosotros($data);
+            echo json_encode($response);
+        }
+    }
+
+    public function uploadImgHeaderContacto() {
+        if (!empty($_POST)) {
+            $this->model->unlinkImagen('imagen_header', 'contact_header', 1, 'header');
+            $error = false;
+            $absolutedir = dirname(__FILE__);
+            $dir = 'public/images/header/';
+            $serverdir = $dir;
+            $tmp = explode(',', $_POST['file']);
+            $file = base64_decode($tmp[1]);
+            $ext = explode('.', $_POST['filename']);
+            $extension = strtolower(end($ext));
+            $name = $_POST['name'];
+            $filename = $this->helper->cleanUrl($name);
+            $filename = $filename . '.' . $extension;
+            $handle = fopen($serverdir . $filename, 'w');
+            fwrite($handle, $file);
+            fclose($handle);
+            #REDIMENSIONAR
+            $imagen = $serverdir . $filename;
+            $imagen_final = $filename;
+            $ancho = 1920;
+            $alto = 1080;
+            $this->helper->redimensionar($imagen, $imagen_final, $ancho, $alto, $serverdir);
+            #############
+            header('Content-type: application/json; charset=utf-8');
+            $data = array(
+                'imagen' => $filename
+            );
+            $response = $this->model->uploadImgHeaderContacto($data);
             echo json_encode($response);
         }
     }
@@ -1883,6 +1945,41 @@ class Admin extends Controller {
             ));
         }
         header('Location:' . URL . $this->idioma . '/admin/services/');
+    }
+
+    public function listadoDTContacto() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = $this->model->listadoDTContacto($_REQUEST);
+        echo $data;
+    }
+
+    public function modalVerContacto() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = array(
+            'id' => $this->helper->cleanInput($_POST['id'])
+        );
+        $datos = $this->model->modalVerContacto($data);
+        echo $datos;
+    }
+
+    public function frmContenidoContacto() {
+        header('Content-type: application/json; charset=utf-8');
+        $datos = array(
+            'es_titulo' => (!empty($_POST['es_titulo'])) ? $this->helper->cleanInput($_POST['es_titulo']) : NULL,
+            'en_titulo' => (!empty($_POST['en_titulo'])) ? $this->helper->cleanInput($_POST['en_titulo']) : NULL,
+            'es_input_nombre' => (!empty($_POST['es_input_nombre'])) ? $this->helper->cleanInput($_POST['es_input_nombre']) : NULL,
+            'en_input_nombre' => (!empty($_POST['en_input_nombre'])) ? $this->helper->cleanInput($_POST['en_input_nombre']) : NULL,
+            'es_input_email' => (!empty($_POST['es_input_email'])) ? $this->helper->cleanInput($_POST['es_input_email']) : NULL,
+            'en_input_email' => (!empty($_POST['en_input_email'])) ? $this->helper->cleanInput($_POST['en_input_email']) : NULL,
+            'es_input_asunto' => (!empty($_POST['es_input_asunto'])) ? $this->helper->cleanInput($_POST['es_input_asunto']) : NULL,
+            'en_input_asunto' => (!empty($_POST['en_input_asunto'])) ? $this->helper->cleanInput($_POST['en_input_asunto']) : NULL,
+            'es_input_mensaje' => (!empty($_POST['es_input_mensaje'])) ? $this->helper->cleanInput($_POST['es_input_mensaje']) : NULL,
+            'en_input_mensaje' => (!empty($_POST['en_input_mensaje'])) ? $this->helper->cleanInput($_POST['en_input_mensaje']) : NULL,
+            'es_boton' => (!empty($_POST['es_boton'])) ? $this->helper->cleanInput($_POST['es_boton']) : NULL,
+            'en_boton' => (!empty($_POST['en_boton'])) ? $this->helper->cleanInput($_POST['en_boton']) : NULL,
+        );
+        $data = $this->model->frmContenidoContacto($datos);
+        echo json_encode($data);
     }
 
 }

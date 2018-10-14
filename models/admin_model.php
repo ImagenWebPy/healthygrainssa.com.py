@@ -209,6 +209,21 @@ class Admin_Model extends Model {
                         . '<td>' . $estado . '</td>'
                         . '<td>' . $btnEditar . ' ' . $btnBorrar . '</td>';
                 break;
+            case 'verContacto':
+                if ($sql[0]['leido'] == 1) {
+                    $estado = '<span class="label label-primary">Leído</span>';
+                } else {
+                    $estado = '<span class="label label-danger">No Leído</span>';
+                }
+                $btnEditar = '<a class="btnVerContacto pointer btn-xs" data-id="' . $id . '" data-url="modalVerContacto"><i class="fa fa-edit"></i> Ver Datos </a>';
+                $data = '<td class="sorting_1">' . $id . '</td>'
+                        . '<td>' . utf8_encode($sql[0]['nombre']) . '</td>'
+                        . '<td>' . utf8_encode($sql[0]['email']) . '</td>'
+                        . '<td>' . utf8_encode($sql[0]['asunto']) . '</td>'
+                        . '<td>' . date('d-m-Y H:i:s', strtotime($sql[0]['fecha'])) . '</td>'
+                        . '<td>' . $estado . '</td>'
+                        . '<td>' . $btnEditar . '</td>';
+                break;
         }
         return $data;
     }
@@ -3055,6 +3070,22 @@ class Admin_Model extends Model {
         return $data;
     }
 
+    public function frmEditarContacto_header($datos) {
+        $id = 1;
+        $update = array(
+            'es_titulo' => utf8_decode($datos['es_titulo']),
+            'en_titulo' => utf8_decode($datos['en_titulo']),
+            'es_frase' => utf8_decode($datos['es_frase']),
+            'en_frase' => utf8_decode($datos['en_frase'])
+        );
+        $row = $this->db->update('contact_header', $update, "id = $id");
+        $data = array(
+            'type' => 'success',
+            'content' => 'Se ha actualizado el contenido del encabezado'
+        );
+        return $data;
+    }
+
     public function frmEditarRetailHeader($datos) {
         $id = 1;
         $update = array(
@@ -3177,6 +3208,20 @@ class Admin_Model extends Model {
             'imagen_header' => $datos['imagen']
         );
         $this->db->update('aboutus_header', $update, "id = $id");
+        $contenido = '<img class="img-responsive" src="' . URL . 'public/images/header/' . $datos['imagen'] . '">';
+        $data = array(
+            "result" => true,
+            'content' => $contenido,
+        );
+        return $data;
+    }
+
+    public function uploadImgHeaderContacto($datos) {
+        $id = 1;
+        $update = array(
+            'imagen_header' => $datos['imagen']
+        );
+        $this->db->update('contact_header', $update, "id = $id");
         $contenido = '<img class="img-responsive" src="' . URL . 'public/images/header/' . $datos['imagen'] . '">';
         $data = array(
             "result" => true,
@@ -4080,6 +4125,156 @@ class Admin_Model extends Model {
                 'estado' => 1
             ));
         }
+    }
+
+    public function datosContactoHeader() {
+        $sql = $this->db->select("SELECT
+                                        *
+                                FROM
+                                contact_header
+                                WHERE id =1;");
+        return $sql[0];
+    }
+
+    public function datosContacto() {
+        $sql = $this->db->select("SELECT
+                                        *
+                                FROM
+                                contact
+                                WHERE id =1;");
+        return $sql[0];
+    }
+
+    public function listadoDTContacto($datos) {
+        $columns = array(
+            0 => 'id',
+            1 => 'nombre',
+            2 => 'email',
+            3 => 'asunto',
+            4 => 'fecha',
+            5 => 'visto',
+            6 => 'accion',
+        );
+#getting total number records without any search
+        $sql = $this->db->select("SELECT COUNT(*) as cantidad FROM frm_contacto");
+        $totalFiltered = $sql[0]['cantidad'];
+        $totalData = $sql[0]['cantidad'];
+
+        $query = "SELECT * FROM frm_contacto where 1 = 1";
+        $where = "";
+        if (!empty($datos['search']['value'])) {
+            $where .= " AND (nombre LIKE '%" . $requestData['search']['value'] . "%' ";
+            $where .= " OR email LIKE '%" . $requestData['search']['value'] . "%' ";
+            $where .= " OR asunto LIKE '%" . $requestData['search']['value'] . "%' ";
+            $where .= " OR fecha LIKE '%" . $requestData['search']['value'] . "%' )";
+#when there is a search parameter then we have to modify total number filtered rows as per search result.
+            $sql = $this->db->select("SELECT COUNT(*) as cantidad FROM frm_contacto where 1 = 1 $where");
+            $totalFiltered = $sql[0]['cantidad'];
+        }
+        $query .= $where;
+        $query .= " ORDER BY " . $columns[$datos['order'][0]['column']] . "   " . $datos['order'][0]['dir'] . "  LIMIT " . $datos['start'] . " ," . $datos['length'] . "   ";
+        $sql = $this->db->select($query);
+        $data = array();
+        foreach ($sql as $row) {  // preparing an array
+            $id = $row["id"];
+            if ($row['leido'] == 1) {
+                $estado = '<span class="label label-primary">Leído</span>';
+            } else {
+                $estado = '<span class="label label-danger">No Leído</span>';
+            }
+            $btnEditar = '<a class="btnVerContacto pointer btn-xs" data-id="' . $id . '" data-url="modalVerContacto"><i class="fa fa-edit"></i> Ver Datos </a>';
+            $nestedData = array();
+            $nestedData['DT_RowId'] = 'contacto_' . $id;
+            $nestedData[] = $id;
+            $nestedData[] = utf8_encode($row["nombre"]);
+            $nestedData[] = utf8_encode($row["email"]);
+            $nestedData[] = utf8_encode($row["asunto"]);
+            $nestedData[] = date('d-m-Y H:i:s', strtotime($row["fecha"]));
+            $nestedData[] = $estado;
+            $nestedData[] = $btnEditar;
+            $data[] = $nestedData;
+        }
+
+        $json_data = array(
+            "draw" => intval($datos['draw']), // for every request/draw by clientside , they send a number as a parameter, when they recieve a response/data they first check the draw number, so we are sending same number in draw. 
+            "recordsTotal" => intval($totalData), // total number of records
+            "recordsFiltered" => intval($totalFiltered), // total number of records after searching, if there is no searching then totalFiltered = totalData
+            "data" => $data   // total data array
+        );
+
+        return json_encode($json_data);
+    }
+
+    public function modalVerContacto($datos) {
+        $id = $datos['id'];
+        $sql = $this->db->select("SELECT * FROM frm_contacto where id = $id");
+        $modal = '<div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Formulario de contacto enviado por ' . utf8_encode($sql[0]['nombre']) . '</h3>
+                    </div>
+                    <div class="row">
+                        <table class="table table-hover">
+                            <tr>
+                                <td class="text-bold">Nombre:</td>
+                                <td>' . utf8_encode($sql[0]['nombre']) . '</td>
+                            </tr>
+                            <tr>
+                                <td class="text-bold">Email:</td>
+                                <td>' . utf8_encode($sql[0]['email']) . '</td>
+                            </tr>
+                            <tr>
+                                <td class="text-bold">Asunto:</td>
+                                <td>' . utf8_encode($sql[0]['asunto']) . '</td>
+                            </tr>
+                            <tr>
+                                <td class="text-bold">Mensaje:</td>
+                                <td>' . utf8_encode($sql[0]['mensaje']) . '</td>
+                            </tr>
+                            <tr>
+                                <td class="text-bold">IP:</td>
+                                <td>' . utf8_encode($sql[0]['ip']) . '</td>
+                            </tr>
+                            <tr>
+                                <td class="text-bold">Fecha:</td>
+                                <td>' . date('d-m-Y H:i:s', strtotime($sql[0]['fecha'])) . '</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>';
+        $update = array(
+            'leido' => 1
+        );
+        $this->db->update('frm_contacto', $update, "id = $id");
+        $data = array(
+            'titulo' => 'Ver datos de contacto',
+            'content' => $modal,
+            'id' => $id,
+            'row' => $this->rowDataTable('verContacto', 'frm_contacto', $id)
+        );
+        return json_encode($data);
+    }
+
+    public function frmContenidoContacto($datos) {
+        $update = array(
+            'es_titulo' => utf8_decode($datos['es_titulo']),
+            'en_titulo' => utf8_decode($datos['en_titulo']),
+            'es_input_nombre' => utf8_decode($datos['es_input_nombre']),
+            'en_input_nombre' => utf8_decode($datos['en_input_nombre']),
+            'es_input_email' => utf8_decode($datos['es_input_email']),
+            'en_input_email' => utf8_decode($datos['en_input_email']),
+            'es_input_asunto' => utf8_decode($datos['es_input_asunto']),
+            'en_input_asunto' => utf8_decode($datos['en_input_asunto']),
+            'es_input_mensaje' => utf8_decode($datos['es_input_mensaje']),
+            'en_input_mensaje' => utf8_decode($datos['en_input_mensaje']),
+            'es_boton' => utf8_decode($datos['es_boton']),
+            'en_boton' => utf8_decode($datos['en_boton']),
+        );
+        $this->db->update('contact', $update, "id = 1");
+        $data = array(
+            'type' => 'success',
+            'content' => 'Se han actualizado los textos de la pagina de contacto',
+        );
+        return $data;
     }
 
 }
