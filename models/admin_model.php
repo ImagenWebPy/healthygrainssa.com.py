@@ -4640,5 +4640,10 @@ class Admin_Model extends Model {
         );
         return $data;
     }
-
+    
+    public function listadoPaginas() {
+        $sql = $this->db->select("SELECT p.id, m.es_texto, m.en_texto FROM pagina p
+                                LEFT JOIN menu m on m.id = p.id_menu");
+        return $sql;
+    }
 }

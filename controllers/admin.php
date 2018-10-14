@@ -2078,5 +2078,20 @@ class Admin extends Controller {
         $data = $this->model->frmAgregarMenu($datos);
         echo json_encode($data);
     }
+    
+    public function pagina() {
+        $this->view->helper = $this->helper;
+        $this->view->idioma = $this->idioma;
+        $this->view->title = 'Páginas';
+        $this->view->listadoPaginas = $this->model->listadoPaginas();
+        $this->view->public_css = array("css/plugins/html5fileupload/html5fileupload.css", "css/plugins/iCheck/custom.css", "css/wfmi-style.css", "css/plugins/toastr/toastr.min.css", "css/plugins/summernote/summernote.css", "css/plugins/datapicker/datepicker3.css");
+        $this->view->publicHeader_js = array("js/plugins/html5fileupload/html5fileupload.min.js");
+        $this->view->public_js = array("js/plugins/iCheck/icheck.min.js", "js/plugins/toastr/toastr.min.js", "js/plugins/summernote/summernote.min.js", "js/plugins/datapicker/bootstrap-datepicker.js");
+        $this->view->render('admin/header');
+        $this->view->render('admin/paginas/index');
+        $this->view->render('admin/footer');
+        if (!empty($_SESSION['message']))
+            unset($_SESSION['message']);
+    }
 
 }
