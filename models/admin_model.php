@@ -1833,6 +1833,7 @@ class Admin_Model extends Model {
         $id = $datos['id'];
         $lng = $datos['lng'];
         $sql = $this->db->select("select * from productos where id = $id");
+        $sqlHeader = $this->db->select("SELECT * FROM `productos_header` where id_producto = $id;");
         $checked = ($sql[0]['estado'] == 1) ? 'checked' : '';
         $modal = '<div class="box box-primary">
                     <div class="box-header with-border">
@@ -1861,20 +1862,44 @@ class Admin_Model extends Model {
                                     <div class="tab-content">
                                         <div id="producto-1" class="tab-pane active">
                                             <div class="panel-body">
-                                                <div class="col-md-6">
+                                                <div class="col-md-12">
                                                     <div class="form-group">
                                                         <label>Producto</label>
                                                         <input type="text" name="es_producto" class="form-control" value="' . utf8_encode($sql[0]['es_producto']) . '">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Titulo Cabecera</label>
+                                                        <input type="text" name="es_titulo" class="form-control" value="' . utf8_encode($sqlHeader[0]['es_titulo']) . '">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Frase Cabecera</label>
+                                                        <input type="text" name="es_frase" class="form-control" value="' . utf8_encode($sqlHeader[0]['es_frase']) . '">
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                         <div id="producto-2" class="tab-pane">
                                             <div class="panel-body">
-                                                <div class="col-md-6">
+                                                <div class="col-md-12">
                                                     <div class="form-group">
                                                         <label>Producto</label>
                                                         <input type="text" name="en_producto" class="form-control" value="' . utf8_encode($sql[0]['en_producto']) . '">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Titulo Cabecera</label>
+                                                        <input type="text" name="en_titulo" class="form-control" value="' . utf8_encode($sqlHeader[0]['en_titulo']) . '">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Frase Cabecera</label>
+                                                        <input type="text" name="en_frase" class="form-control" value="' . utf8_encode($sqlHeader[0]['en_frase']) . '">
                                                     </div>
                                                 </div>
                                             </div>
@@ -1899,11 +1924,11 @@ class Admin_Model extends Model {
                                 -Tamaño: Hasta 2MB<br>
                                 <strong>Obs.: Las imagenes serán redimensionadas automaticamente a la dimensión especificada y se reducirá la calidad de la misma.</strong>
                             </div>
-                            <div class="html5fileupload fileSliderHealthy" data-max-filesize="2048000" data-url="' . URL . $lng . '/admin/uploadImgProducto" data-valid-extensions="JPG,JPEG,jpg,png,jpeg,PNG" style="width: 100%;">
+                            <div class="html5fileupload fileProducto" data-max-filesize="2048000" data-url="' . URL . $lng . '/admin/uploadImgProducto" data-valid-extensions="JPG,JPEG,jpg,png,jpeg,PNG" style="width: 100%;">
                                 <input type="file" name="file_archivo" />
                             </div>
                             <script>
-                                $(".html5fileupload.fileSliderHealthy").html5fileupload({
+                                $(".html5fileupload.fileProducto").html5fileupload({
                                     data: {id: ' . $id . '},
                                     onAfterStartSuccess: function (response) {
                                         $("#imgSlider" + response.id).html(response.content);
@@ -1915,6 +1940,37 @@ class Admin_Model extends Model {
                         <div class="col-md-12" id="imgSlider' . $id . '">';
         if (!empty($sql[0]['imagen'])) {
             $modal .= '     <img class="img-responsive" src="' . URL . 'public/images/productos/' . $sql[0]['imagen'] . '">';
+        }
+        $modal .= '     </div>
+                        <div class="col-md-12">
+                            <h3>Imagen de Cabecera</h3>
+                            <div class="alert alert-info alert-dismissable">
+                                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                Detalles de la imagen a subir:<br>
+                                -Formato: JPG,PNG (La imagen principal tiene que ser PNG transparente)<br>
+                                -Dimensión: 1920 x 1080px<br>
+                                -Tamaño: Hasta 2MB<br>
+                                <strong>Obs.: Las imagenes serán redimensionadas automaticamente a la dimensión especificada y se reducirá la calidad de la misma.</strong>
+                            </div>
+                            <div class="alert alert-warning alert-dismissable">
+                                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Sí se sube una imagen diferente a la dimensión recomendada, la estructura de la sección podría no mostrarse correctamente.
+                            </div>
+                            <div class="html5fileupload fileCabeceraProducto" data-max-filesize="2048000" data-url="' . URL . $lng . '/admin/uploadImgCabeceraProducto" data-valid-extensions="JPG,JPEG,jpg,png,jpeg,PNG" style="width: 100%;">
+                                <input type="file" name="file_archivo" />
+                            </div>
+                            <script>
+                                $(".html5fileupload.fileCabeceraProducto").html5fileupload({
+                                    data: {id: ' . $id . '},
+                                    onAfterStartSuccess: function (response) {
+                                        $("#imgCabeceraProducto" + response.id).html(response.content);
+                                    }
+                                });
+                            </script>
+                        </div>
+                        <div class="col-md-12" id="imgCabeceraProducto' . $id . '">';
+        if (!empty($sql[0]['imagen'])) {
+            $modal .= '     <img class="img-responsive" src="' . URL . 'public/images/header/' . $sqlHeader[0]['imagen_header'] . '">';
         }
         $modal .= '     </div>
                     </div>
@@ -2140,7 +2196,8 @@ class Admin_Model extends Model {
     public function modalEditarDTItemProducto($datos) {
         $id = $datos['id'];
         $lng = $datos['lng'];
-        $sql = $this->db->select("select * from productos_items where id = $id");
+        $sql = $this->db->select("select * from productos_items where id = $id;");
+
         $checked = ($sql[0]['estado'] == 1) ? 'checked' : '';
         $modal = '<div class="box box-primary">
                     <div class="box-header with-border">
@@ -2169,7 +2226,7 @@ class Admin_Model extends Model {
                                     <div class="tab-content">
                                         <div id="itemProducto-1" class="tab-pane active">
                                             <div class="panel-body">
-                                                <div class="col-md-6">
+                                                <div class="col-md-12">
                                                     <div class="form-group">
                                                         <label>Nombre</label>
                                                         <input type="text" name="es_nombre" class="form-control" value="' . utf8_encode($sql[0]['es_nombre']) . '">
@@ -2185,12 +2242,13 @@ class Admin_Model extends Model {
                                         </div>
                                         <div id="itemProducto-2" class="tab-pane">
                                             <div class="panel-body">
-                                                <div class="col-md-6">
+                                                <div class="col-md-12">
                                                     <div class="form-group">
                                                         <label>Nombre</label>
                                                         <input type="text" name="en_nombre" class="form-control" value="' . utf8_encode($sql[0]['en_nombre']) . '">
                                                     </div>
                                                 </div>
+                                                
                                                 <div class="col-md-12">
                                                     <div class="form-group">
                                                         <label>Contenido</label>
@@ -2215,7 +2273,7 @@ class Admin_Model extends Model {
                                 <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
                                 Detalles de la imagen a subir:<br>
                                 -Formato: JPG,PNG (La imagen principal tiene que ser PNG transparente)<br>
-                                -Dimensión: Imagen Normal: 770 x 400px<br>
+                                -Dimensión: 770 x 400px<br>
                                 -Tamaño: Hasta 2MB<br>
                                 <strong>Obs.: Las imagenes serán redimensionadas automaticamente a la dimensión especificada y se reducirá la calidad de la misma.</strong>
                             </div>
@@ -2230,17 +2288,21 @@ class Admin_Model extends Model {
                                 $(".html5fileupload.fileItemProducto").html5fileupload({
                                     data: {id: ' . $id . '},
                                     onAfterStartSuccess: function (response) {
-                                        $("#imgSlider" + response.id).html(response.content);
+                                        $("#imgItemProducto" + response.id).html(response.content);
                                         $("#itemProductos_' . $id . '").html(response.row):
                                     }
                                 });
                             </script>
                         </div>
-                        <div class="col-md-12" id="imgSlider' . $id . '">';
+                        <div class="col-md-12" id="imgItemProducto' . $id . '">';
         if (!empty($sql[0]['imagen'])) {
             $modal .= '     <img class="img-responsive" src="' . URL . 'public/images/productos/items/' . $sql[0]['imagen'] . '">';
         }
         $modal .= '     </div>
+                        <div class="col-md-12">
+                            <hr>
+                        </div>
+                        
                     </div>
                 </div>
                 <script>
@@ -2390,6 +2452,21 @@ class Admin_Model extends Model {
             'id' => $id,
             'content' => $contenido,
             'row' => $this->rowDataTable('itemProductos', 'productos_items', $id)
+        );
+        return $data;
+    }
+
+    public function uploadImgCabeceraProducto($datos) {
+        $id = $datos['id'];
+        $update = array(
+            'imagen_header' => $datos['imagen']
+        );
+        $this->db->update('productos_header', $update, "id = $id");
+        $contenido = '<img class="img-responsive" src="' . URL . 'public/images/header/' . $datos['imagen'] . '">';
+        $data = array(
+            "result" => true,
+            'id' => $id,
+            'content' => $contenido,
         );
         return $data;
     }
@@ -2703,20 +2780,44 @@ class Admin_Model extends Model {
                                     <div class="tab-content">
                                         <div id="tab-1AgregarProducto" class="tab-pane active">
                                             <div class="panel-body">
-                                                <div class="col-md-6">
+                                                <div class="col-md-12">
                                                     <div class="form-group">
                                                         <label>Producto</label>
                                                         <input type="text" name="es_producto" class="form-control" value="">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Título</label>
+                                                        <input type="text" name="es_titulo" class="form-control" value="">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Frase</label>
+                                                        <input type="text" name="es_frase" class="form-control" value="">
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                         <div id="tab-2AgregarProducto" class="tab-pane">
                                             <div class="panel-body">
-                                                <div class="col-md-6">
+                                                <div class="col-md-12">
                                                     <div class="form-group">
                                                         <label>Producto</label>
                                                         <input type="text" name="en_producto" class="form-control" value="">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Título</label>
+                                                        <input type="text" name="en_frase" class="form-control" value="">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Frase</label>
+                                                        <input type="text" name="en_titulo" class="form-control" value="">
                                                     </div>
                                                 </div>
                                             </div>
@@ -2740,6 +2841,23 @@ class Admin_Model extends Model {
                                     </div>
                                     <script>
                                         $(".html5fileupload.fileAgregarProducto").html5fileupload();
+                                    </script>
+                                </div>
+                                <div class="col-md-12">
+                                    <h3>Imagen para la Cabecera</h3>
+                                    <div class="alert alert-info alert-dismissable">
+                                        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                        Detalles de la imagen a subir:<br>
+                                        -Formato: JPG,PNG<br>
+                                        -Dimensión: Imagen Normal: 1920 x 1080px<br>
+                                        -Tamaño: Hasta 2MB<br>
+                                        <strong>Obs.: Las imagenes serán redimensionadas automaticamente a la dimensión especificada y se reducirá la calidad de la misma.</strong>
+                                    </div>
+                                    <div class="html5fileupload fileAgregarProductoHeader" data-form="true" data-max-filesize="2048000"  data-valid-extensions="JPG,JPEG,jpg,png,jpeg,PNG" style="width: 100%;">
+                                        <input type="file" name="file_archivoHeader" />
+                                    </div>
+                                    <script>
+                                        $(".html5fileupload.fileAgregarProductoHeader").html5fileupload();
                                     </script>
                                 </div>
                             </div>
@@ -2912,6 +3030,14 @@ class Admin_Model extends Model {
             'estado' => utf8_decode($datos['estado'])
         ));
         $id = $this->db->lastInsertId();
+        $this->db->insert('productos_header', array(
+            'id_producto' => $id,
+            'es_titulo' => utf8_decode($datos['es_titulo']),
+            'en_titulo' => utf8_decode($datos['en_titulo']),
+            'es_frase' => utf8_decode($datos['es_frase']),
+            'en_frase' => utf8_decode($datos['en_frase']),
+        ));
+
         return $id;
     }
 
@@ -2937,6 +3063,14 @@ class Admin_Model extends Model {
             'imagen' => $imagenes['imagenes']
         );
         $this->db->update('productos', $update, "id = $id");
+    }
+   
+    public function frmAddProductoImgHeader($imagenes) {
+        $id = $imagenes['id'];
+        $update = array(
+            'imagen_header' => $imagenes['imagenes']
+        );
+        $this->db->update('productos_header', $update, "id_producto = $id");
     }
 
     public function datosSeccion($seccion) {
@@ -2978,6 +3112,13 @@ class Admin_Model extends Model {
             'estado' => $estado
         );
         $this->db->update('productos', $update, "id = $id");
+        $updateHeader = array(
+            'es_frase' => utf8_decode($datos['es_frase']),
+            'en_frase' => utf8_decode($datos['en_frase']),
+            'es_titulo' => utf8_decode($datos['es_titulo']),
+            'en_titulo' => utf8_decode($datos['en_titulo']),
+        );
+        $this->db->update('productos_header', $updateHeader, "id = $id");
         $data = array(
             'type' => 'success',
             'content' => $this->rowDataTable('productos', 'productos', $id),
@@ -3002,6 +3143,7 @@ class Admin_Model extends Model {
             'estado' => $estado
         );
         $this->db->update('productos_items', $update, "id = $id");
+
         $data = array(
             'type' => 'success',
             'content' => $this->rowDataTable('itemProductos', 'productos_items', $id),
@@ -4640,10 +4782,11 @@ class Admin_Model extends Model {
         );
         return $data;
     }
-    
+
     public function listadoPaginas() {
         $sql = $this->db->select("SELECT p.id, m.es_texto, m.en_texto FROM pagina p
                                 LEFT JOIN menu m on m.id = p.id_menu");
         return $sql;
     }
+
 }

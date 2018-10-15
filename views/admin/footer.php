@@ -122,6 +122,22 @@ if (isset($this->js)) {
                                     $("#productos_" + response.id).html(response.row);
                                 }
                             });
+
+                            break;
+                        case 'productos':
+                            $(".html5fileupload.fileProducto").html5fileupload({
+                                data: {id: data.id},
+                                onAfterStartSuccess: function (response) {
+                                    $("#imgSlider" + response.id).html(response.content);
+                                    $("#productos_" + response.id).html(response.row);
+                                }
+                            });
+                            $(".html5fileupload.fileCabeceraProducto").html5fileupload({
+                                data: {id: data.id},
+                                onAfterStartSuccess: function (response) {
+                                    $("#imgCabeceraProducto" + response.id).html(response.content);
+                                }
+                            });
                             break;
                         case 'certificaciones':
                             $(".html5fileupload.fileCertificacionesEditar").html5fileupload({

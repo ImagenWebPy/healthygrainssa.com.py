@@ -1013,6 +1013,41 @@ class Admin extends Controller {
         }
     }
 
+    public function uploadImgCabeceraProducto() {
+        if (!empty($_POST)) {
+            $idPost = $_POST['data']['id'];
+            $this->model->unlinkImagen('imagen_header', 'privatelabel_header', $idPost, 'header');
+            $error = false;
+            $absolutedir = dirname(__FILE__);
+            $dir = 'public/images/header/';
+            $serverdir = $dir;
+            $tmp = explode(',', $_POST['file']);
+            $file = base64_decode($tmp[1]);
+            $ext = explode('.', $_POST['filename']);
+            $extension = strtolower(end($ext));
+            $name = $idPost . '-' . $_POST['name'];
+            $filename = $this->helper->cleanUrl($name);
+            $filename = $filename . '.' . $extension;
+            $handle = fopen($serverdir . $filename, 'w');
+            fwrite($handle, $file);
+            fclose($handle);
+            #REDIMENSIONAR
+            $imagen = $serverdir . $filename;
+            $imagen_final = $filename;
+            $ancho = 1920;
+            $alto = 1080;
+            $this->helper->redimensionar($imagen, $imagen_final, $ancho, $alto, $serverdir);
+            #############
+            header('Content-type: application/json; charset=utf-8');
+            $data = array(
+                'id' => $idPost,
+                'imagen' => $filename
+            );
+            $response = $this->model->uploadImgCabeceraProducto($data);
+            echo json_encode($response);
+        }
+    }
+
     public function uploadImgHeaderServicio() {
         if (!empty($_POST)) {
             $idPost = $_POST['data']['id'];
@@ -1190,6 +1225,10 @@ class Admin extends Controller {
             $data = array(
                 'es_producto' => (!empty($_POST['es_producto'])) ? $this->helper->cleanInput($_POST['es_producto']) : NULL,
                 'en_producto' => (!empty($_POST['en_producto'])) ? $this->helper->cleanInput($_POST['en_producto']) : NULL,
+                'es_titulo' => (!empty($_POST['es_titulo'])) ? $this->helper->cleanInput($_POST['es_titulo']) : NULL,
+                'en_titulo' => (!empty($_POST['en_titulo'])) ? $this->helper->cleanInput($_POST['en_titulo']) : NULL,
+                'es_frase' => (!empty($_POST['es_frase'])) ? $this->helper->cleanInput($_POST['es_frase']) : NULL,
+                'en_frase' => (!empty($_POST['en_frase'])) ? $this->helper->cleanInput($_POST['en_frase']) : NULL,
                 'orden' => (!empty($_POST['orden'])) ? $this->helper->cleanInput($_POST['orden']) : NULL,
                 'estado' => (!empty($_POST['estado'])) ? $this->helper->cleanInput($_POST['estado']) : 0,
             );
@@ -1224,12 +1263,41 @@ class Admin extends Controller {
                 );
                 $this->model->frmAddProductoImg($imagenes);
             }
+            if (!empty($_FILES['file_archivoHeader']['name'])) {
+                $error = false;
+                $dir = 'public/images/header/';
+                $serverdir = $dir;
+                #IMAGENES
+                $newname = $idPost . '-' . $_FILES['file_archivoHeader']['name'];
+                $fname = $this->helper->cleanUrl($newname);
+                $contents = file_get_contents($_FILES['file_archivoHeader']['tmp_name']);
+
+                $handle = fopen($serverdir . $fname, 'w');
+                fwrite($handle, $contents);
+                fclose($handle);
+                #############
+                #SE REDIMENSIONA LA IMAGEN
+                #############
+                # ruta de la imagen a redimensionar 
+                $imagen = $serverdir . $fname;
+                # ruta de la imagen final, si se pone el mismo nombre que la imagen, esta se sobreescribe 
+                $imagen_final = $fname;
+                $ancho = 1920;
+                $alto = 1080;
+                $this->helper->redimensionar($imagen, $imagen_final, $ancho, $alto, $serverdir);
+                #############
+                $imagenes = array(
+                    'id' => $idPost,
+                    'imagenes' => $fname
+                );
+                $this->model->frmAddProductoImgHeader($imagenes);
+            }
             Session::set('message', array(
                 'type' => 'success',
                 'mensaje' => 'Se ha agregado correctamente el producto'
             ));
         }
-        header('Location:' . URL . $this->idioma . '/admin/productos/');
+        header('Location:' . URL . $this->idioma . '/admin/products/');
     }
 
     public function frmEditarIndexSeccion1() {
@@ -1252,6 +1320,10 @@ class Admin extends Controller {
             'id' => $this->helper->cleanInput($_POST['id']),
             'es_producto' => (!empty($_POST['es_producto'])) ? $this->helper->cleanInput($_POST['es_producto']) : NULL,
             'en_producto' => (!empty($_POST['en_producto'])) ? $this->helper->cleanInput($_POST['en_producto']) : NULL,
+            'es_titulo' => (!empty($_POST['es_titulo'])) ? $this->helper->cleanInput($_POST['es_titulo']) : NULL,
+            'en_titulo' => (!empty($_POST['en_titulo'])) ? $this->helper->cleanInput($_POST['en_titulo']) : NULL,
+            'es_frase' => (!empty($_POST['es_frase'])) ? $this->helper->cleanInput($_POST['es_frase']) : NULL,
+            'en_frase' => (!empty($_POST['en_frase'])) ? $this->helper->cleanInput($_POST['en_frase']) : NULL,
             'orden' => (!empty($_POST['orden'])) ? $_POST['orden'] : NULL,
             'estado' => (!empty($_POST['estado'])) ? $this->helper->cleanInput($_POST['estado']) : 0
         );
@@ -2078,7 +2150,7 @@ class Admin extends Controller {
         $data = $this->model->frmAgregarMenu($datos);
         echo json_encode($data);
     }
-    
+
     public function pagina() {
         $this->view->helper = $this->helper;
         $this->view->idioma = $this->idioma;
