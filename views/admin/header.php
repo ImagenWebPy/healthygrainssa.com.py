@@ -82,7 +82,7 @@ $rol = $_SESSION['usuarioLogueado']['rol'];
                             </li>
                             <li <?= $paginaActual['paginas']['contacto']; ?>><a href="<?= URL . $this->idioma ?>/admin/contacto"><i class="fa fa-envelope-o"></i> <span class="nav-label">Contacto</span></a></li>
                             <li <?= $paginaActual['paginas']['menu']; ?>><a href="<?= URL . $this->idioma ?>/admin/menu"><i class="fa fa-bars"></i> <span class="nav-label">Menu</span></a></li>
-                            <li <?= $paginaActual['paginas']['pagina']; ?>><a href="<?= URL . $this->idioma ?>/admin/pagina"><i class="fa fa-file-text-o"></i> <span class="nav-label">Páginas</span></a></li>
+                            <!--<li <?= $paginaActual['paginas']['pagina']; ?>><a href="<?= URL . $this->idioma ?>/admin/pagina"><i class="fa fa-file-text-o"></i> <span class="nav-label">Páginas</span></a></li>-->
                             <li <?= $paginaActual['paginas']['redes']; ?>><a href="<?= URL . $this->idioma ?>/admin/redes"><i class="fa fa-share-square-o"></i> <span class="nav-label">Redes</span></a></li>
                             <li <?= $paginaActual['paginas']['logo']; ?>><a href="<?= URL . $this->idioma ?>/admin/logo"><i class="fa fa-arrows-alt"></i> <span class="nav-label">Logos</span></a></li>
                             <li <?= $paginaActual['paginas']['direccion']; ?>><a href="<?= URL . $this->idioma ?>/admin/direccion"><i class="fa fa-map-marker"></i> <span class="nav-label">Direcciones</span></a></li>

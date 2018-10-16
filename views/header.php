@@ -115,11 +115,13 @@
                                 <!-- DropDown Menu -->
                                 <ul class="dropdown-menu pull-right clearfix">
                                     <li class="ml-20 mt-15 mr-20 mb-15 raleway mini-text gray">
-                                        <form method="post" class="search-form">
+                                        <form method="post" class="search-form" action="<?= URL . $this->idioma; ?>/blog/busqueda">
+                                            <input type="hidden" name="url" value="<?= URL; ?>" />
+                                            <input type="hidden" name="lng" value="<?= $this->idioma; ?>" />
                                             <?php if ($this->idioma == 'en'): ?>
-                                                <input type="text" name="search" id="search" class="transparent uppercase" placeholder="Search..." />
+                                                <input type="text" name="busqueda" id="search" class="transparent uppercase" placeholder="Search..." />
                                             <?php else: ?>
-                                                <input type="text" name="search" id="search" class="transparent uppercase" placeholder="Buscar..." />
+                                                <input type="text" name="busqueda" id="search" class="transparent uppercase" placeholder="Buscar..." />
                                             <?php endif; ?>
                                             <button type="submit">
                                                 <i class="fa fa-search"></i>

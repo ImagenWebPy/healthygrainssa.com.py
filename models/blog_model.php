@@ -121,8 +121,8 @@ class Blog_Model extends Model {
     }
 
     public function resultadosBusquedas($datos) {
-        if (!empty($pagina)) {
-            $page = $pagina;
+        if (!empty($datos['pagina'])) {
+            $page = $datos['pagina'];
         } else {
             $page = 1;
         }
@@ -130,6 +130,11 @@ class Blog_Model extends Model {
         $setLimit = CANT_REG;
         $pageLimit = ($setLimit * $page) - $setLimit;
         $busqueda = $datos['busqueda'];
+        $mas = 'Read More';
+        if ($lng == 'es') {
+            $sql = $this->db->select("SET lc_time_names = 'es_ES';");
+            $mas = 'Leer Más';
+        }
         $sql = $this->db->select("select id,
                                         " . $lng . "_titulo as titulo,
                                         " . $lng . "_contenido as contenido,
@@ -137,7 +142,8 @@ class Blog_Model extends Model {
                                         imagen,
                                         youtube_id as video,
                                         imagen_header,
-                                        fecha_blog as fecha
+                                        DATE_FORMAT(fecha_blog, '%d') AS fecha_dia,
+                                        DATE_FORMAT(fecha_blog, '%M-%Y') AS fecha
                                  from blog b 
                                  where 1 = 1
                                  AND (" . $lng . "_titulo like '%$busqueda%'
@@ -165,8 +171,10 @@ class Blog_Model extends Model {
                 'tags' => $tag,
                 'video' => utf8_encode($item['video']),
                 'imagen' => utf8_encode($item['imagen']),
-                'fecha' => $item['fecha'],
-                'url' => $this->helper->armaUrl($item['id'], 'blog', $campo, $lng)
+                'fecha_dia' => utf8_encode($sql[0]['fecha_dia']),
+                'fecha' => utf8_encode($sql[0]['fecha']),
+                'url' => $this->helper->armaUrl($item['id'], 'blog', $campo, $lng),
+                'mas' => $mas
             ));
         }
         #guardamos el dato buscado
@@ -180,7 +188,7 @@ class Blog_Model extends Model {
         ));
         $data = array(
             'listado' => $listado,
-            'paginador' => $this->helper->mostrarPaginador($setLimit, $page, 'blog', 'blog/busqueda', $condicion)
+            'paginador' => $this->helper->mostrarPaginador($setLimit, $page, 'blog', 'blog/busqueda', $lng, $condicion)
         );
         return $data;
     }

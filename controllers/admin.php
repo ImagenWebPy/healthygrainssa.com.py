@@ -90,6 +90,20 @@ class Admin extends Controller {
             unset($_SESSION['message']);
     }
 
+    public function busquedas() {
+        $this->view->helper = $this->helper;
+        $this->view->idioma = $this->idioma;
+
+        $this->view->title = 'Busquedas en el Blog';
+        $this->view->public_css = array("css/plugins/dataTables/datatables.min.css");
+        $this->view->public_js = array("js/plugins/dataTables/datatables.min.js");
+        $this->view->render('admin/header');
+        $this->view->render('admin/blog/busquedas');
+        $this->view->render('admin/footer');
+        if (!empty($_SESSION['message']))
+            unset($_SESSION['message']);
+    }
+
     public function aboutus() {
         $this->view->helper = $this->helper;
         $this->view->idioma = $this->idioma;
@@ -2164,6 +2178,12 @@ class Admin extends Controller {
         $this->view->render('admin/footer');
         if (!empty($_SESSION['message']))
             unset($_SESSION['message']);
+    }
+
+    public function listadoDTBusqueda() {
+        header('Content-type: application/json; charset=utf-8');
+        $data = $this->model->listadoDTBusqueda($_REQUEST);
+        echo $data;
     }
 
 }
