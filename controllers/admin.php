@@ -1350,8 +1350,8 @@ class Admin extends Controller {
         $data = array(
             'id' => $this->helper->cleanInput($_POST['id']),
             'es_nombre' => (!empty($_POST['es_nombre'])) ? $this->helper->cleanInput($_POST['es_nombre']) : NULL,
-            'es_contenido' => (!empty($_POST['es_contenido'])) ? $_POST['es_contenido'] : NULL,
             'en_nombre' => (!empty($_POST['en_nombre'])) ? $this->helper->cleanInput($_POST['en_nombre']) : NULL,
+            'es_contenido' => (!empty($_POST['es_contenido'])) ? $_POST['es_contenido'] : NULL,
             'en_contenido' => (!empty($_POST['en_contenido'])) ? $_POST['en_contenido'] : NULL,
             'orden' => (!empty($_POST['orden'])) ? $_POST['orden'] : NULL,
             'estado' => (!empty($_POST['estado'])) ? $this->helper->cleanInput($_POST['estado']) : 0
@@ -1467,8 +1467,8 @@ class Admin extends Controller {
         header('Content-type: application/json; charset=utf-8');
         $data = array(
             'id' => $this->helper->cleanInput($_POST['id']),
-            'es_contenido' => (!empty($_POST['es_contenido'])) ? $this->helper->cleanInput($_POST['es_contenido']) : NULL,
-            'en_contenido' => (!empty($_POST['en_contenido'])) ? $this->helper->cleanInput($_POST['en_contenido']) : NULL,
+            'es_contenido' => (!empty($_POST['es_contenido'])) ? $_POST['es_contenido'] : NULL,
+            'en_contenido' => (!empty($_POST['en_contenido'])) ? $_POST['en_contenido'] : NULL,
         );
         $datos = $this->model->frmEditarAboutus_seccion1($data);
         echo json_encode($datos);
@@ -1478,8 +1478,8 @@ class Admin extends Controller {
         header('Content-type: application/json; charset=utf-8');
         $data = array(
             'id' => $this->helper->cleanInput($_POST['id']),
-            'es_contenido' => (!empty($_POST['es_contenido'])) ? $this->helper->cleanInput($_POST['es_contenido']) : NULL,
-            'en_contenido' => (!empty($_POST['en_contenido'])) ? $this->helper->cleanInput($_POST['en_contenido']) : NULL,
+            'es_contenido' => (!empty($_POST['es_contenido'])) ? $_POST['es_contenido'] : NULL,
+            'en_contenido' => (!empty($_POST['en_contenido'])) ? $_POST['en_contenido'] : NULL,
         );
         $datos = $this->model->frmEditarRetailSeccion1($data);
         echo json_encode($datos);
@@ -1516,9 +1516,9 @@ class Admin extends Controller {
         $data = array(
             'id' => $this->helper->cleanInput($_POST['id']),
             'es_titulo' => (!empty($_POST['es_titulo'])) ? $this->helper->cleanInput($_POST['es_titulo']) : NULL,
-            'es_contenido' => (!empty($_POST['es_contenido'])) ? $this->helper->cleanInput($_POST['es_contenido']) : NULL,
+            'es_contenido' => (!empty($_POST['es_contenido'])) ? $_POST['es_contenido'] : NULL,
             'en_titulo' => (!empty($_POST['en_titulo'])) ? $this->helper->cleanInput($_POST['en_titulo']) : NULL,
-            'en_contenido' => (!empty($_POST['en_contenido'])) ? $this->helper->cleanInput($_POST['en_contenido']) : NULL,
+            'en_contenido' => (!empty($_POST['en_contenido'])) ? $_POST['en_contenido'] : NULL,
             'orden' => (!empty($_POST['orden'])) ? $this->helper->cleanInput($_POST['orden']) : NULL,
             'estado' => (!empty($_POST['estado'])) ? $this->helper->cleanInput($_POST['estado']) : 0,
         );
@@ -1750,8 +1750,8 @@ class Admin extends Controller {
         $datos = array(
             'es_titulo' => (!empty($_POST['es_titulo'])) ? $this->helper->cleanInput($_POST['es_titulo']) : NULL,
             'en_titulo' => (!empty($_POST['en_titulo'])) ? $this->helper->cleanInput($_POST['en_titulo']) : NULL,
-            'es_contenido' => (!empty($_POST['es_contenido'])) ? $this->helper->cleanInput($_POST['es_contenido']) : NULL,
-            'en_contenido' => (!empty($_POST['en_contenido'])) ? $this->helper->cleanInput($_POST['en_contenido']) : NULL,
+            'es_contenido' => (!empty($_POST['es_contenido'])) ? $_POST['es_contenido'] : NULL,
+            'en_contenido' => (!empty($_POST['en_contenido'])) ? $_POST['en_contenido'] : NULL,
             'orden' => (!empty($_POST['orden'])) ? $this->helper->cleanInput($_POST['orden']) : NULL,
             'estado' => (!empty($_POST['estado'])) ? $this->helper->cleanInput($_POST['estado']) : 0,
         );
@@ -1844,8 +1844,8 @@ class Admin extends Controller {
                 'id_producto' => (!empty($_POST['id_producto'])) ? $this->helper->cleanInput($_POST['id_producto']) : NULL,
                 'es_nombre' => (!empty($_POST['es_nombre'])) ? $this->helper->cleanInput($_POST['es_nombre']) : NULL,
                 'en_nombre' => (!empty($_POST['en_nombre'])) ? $this->helper->cleanInput($_POST['en_nombre']) : NULL,
-                'es_contenido' => (!empty($_POST['es_contenido'])) ? $this->helper->cleanInput($_POST['es_contenido']) : NULL,
-                'en_contenido' => (!empty($_POST['en_contenido'])) ? $this->helper->cleanInput($_POST['en_contenido']) : NULL,
+                'es_contenido' => (!empty($_POST['es_contenido'])) ? $_POST['es_contenido'] : NULL,
+                'en_contenido' => (!empty($_POST['en_contenido'])) ? $_POST['en_contenido'] : NULL,
                 'orden' => (!empty($_POST['orden'])) ? $this->helper->cleanInput($_POST['orden']) : 0,
                 'estado' => (!empty($_POST['estado'])) ? $_POST['estado'] : 0,
             );
